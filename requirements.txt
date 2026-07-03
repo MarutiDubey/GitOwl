@@ -1,0 +1,14 @@
+# DevGuard runtime dependencies (pinned).
+# Update with care — see CONTRIBUTING.md Section 10 (Dependency Management & Security).
+
+# HTTP client for AI providers + GitHub API
+httpx==0.28.1
+
+# Environment/config loading
+python-dotenv==1.0.1
+
+# Static analysis engine
+semgrep==1.97.0
+
+# Unified diff parsing
+unidiff==0.7.5

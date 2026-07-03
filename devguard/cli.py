@@ -1,0 +1,172 @@
+"""DevGuard command-line interface.
+
+Subcommands:
+  review-diff   Review a unified diff from a file or stdin (prints Markdown).
+  review-pr     Fetch a GitHub PR diff, review it, and optionally post a comment.
+  providers     List available AI providers.
+
+Run `python -m devguard.cli --help` for details.
+"""
+
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+
+from devguard import __version__
+from devguard.ai_client.base import AIProviderError
+from devguard.ai_client.registry import available_providers
+from devguard.comment import render_comment
+from devguard.config import Config, ConfigError, load_config
+from devguard.logging_config import get_logger, setup_logging
+from devguard.reviewer import Review, empty_review, review_diff
+
+logger = get_logger(__name__)
+
+
+def _run_semgrep_if_available(diff_text: str, config: Config) -> list:
+    """Best-effort Semgrep scan; returns [] if Semgrep isn't installed."""
+    from devguard import semgrep_runner
+    from devguard.diff_utils import parse_stats
+
+    if not semgrep_runner.is_available():
+        logger.info("Semgrep not installed; skipping static analysis.")
+        return []
+    stats = parse_stats(diff_text)
+    try:
+        return semgrep_runner.scan_diff_files(
+            stats.changed_files, timeout_seconds=config.semgrep_timeout_seconds
+        )
+    except semgrep_runner.SemgrepError as exc:
+        logger.warning("Semgrep failed, continuing without it: %s", exc)
+        return []
+
+
+def _force_utf8_output() -> None:
+    """Ensure stdout/stderr can emit UTF-8 (Windows consoles default to cp1252).
+
+    The rendered comment contains emoji/box-drawing; without this, printing
+    crashes with UnicodeEncodeError on a default Windows terminal.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if callable(reconfigure):
+            try:
+                reconfigure(encoding="utf-8", errors="replace")
+            except (ValueError, OSError):  # pragma: no cover - stream not reconfigurable
+                pass
+
+
+def _load_diff(source: str | None) -> str:
+    if source is None or source == "-":
+        return sys.stdin.read()
+    path = Path(source)
+    if not path.is_file():
+        raise ConfigError(f"diff file not found: {source}")
+    return path.read_text(encoding="utf-8")
+
+
+def _emit(review: Review) -> None:
+    print(render_comment(review.result, review.stats))
+
+
+def cmd_review_diff(args: argparse.Namespace, config: Config) -> int:
+    diff_text = _load_diff(args.file)
+    if not diff_text.strip():
+        _emit(empty_review("Empty diff — nothing to review."))
+        return 0
+    findings = [] if args.no_semgrep else _run_semgrep_if_available(diff_text, config)
+    review = review_diff(diff_text, config, semgrep_findings=findings)
+    _emit(review)
+    return 0
+
+
+def cmd_review_pr(args: argparse.Namespace, config: Config) -> int:
+    from devguard.github_client import GitHubClient, GitHubError
+
+    if not config.github_token:
+        raise ConfigError("GITHUB_TOKEN is required for review-pr.")
+    client = GitHubClient(config.github_token)
+    try:
+        diff_text = client.fetch_pr_diff(args.repo, args.pr)
+    except GitHubError as exc:
+        logger.error("%s", exc)
+        return 2
+
+    if not diff_text.strip():
+        review = empty_review("Empty diff — nothing to review.")
+    else:
+        findings = [] if args.no_semgrep else _run_semgrep_if_available(diff_text, config)
+        review = review_diff(diff_text, config, semgrep_findings=findings)
+
+    body = render_comment(review.result, review.stats)
+    if args.post:
+        try:
+            client.post_or_update_comment(args.repo, args.pr, body)
+            print(f"Posted review to {args.repo}#{args.pr}")
+        except GitHubError as exc:
+            logger.error("%s", exc)
+            return 2
+    else:
+        print(body)
+    return 0
+
+
+def cmd_providers(_args: argparse.Namespace, config: Config) -> int:
+    print("Available AI providers:")
+    for name in available_providers():
+        marker = " (active)" if name == config.ai.provider else ""
+        print(f"  - {name}{marker}")
+    return 0
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="devguard",
+        description="AI-assisted code review for GitHub pull requests.",
+    )
+    parser.add_argument("--version", action="version", version=f"DevGuard {__version__}")
+    parser.add_argument(
+        "--log-level",
+        default=None,
+        help="Override LOG_LEVEL (DEBUG/INFO/WARNING/ERROR).",
+    )
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    p_diff = sub.add_parser("review-diff", help="Review a unified diff (file or stdin).")
+    p_diff.add_argument("file", nargs="?", help="Path to diff file, or '-' for stdin.")
+    p_diff.add_argument("--no-semgrep", action="store_true", help="Skip static analysis.")
+    p_diff.set_defaults(func=cmd_review_diff)
+
+    p_pr = sub.add_parser("review-pr", help="Review a GitHub PR by number.")
+    p_pr.add_argument("repo", help="owner/repo, e.g. MarutiDubey/DevGuard")
+    p_pr.add_argument("pr", type=int, help="Pull request number.")
+    p_pr.add_argument("--post", action="store_true", help="Post the review as a PR comment.")
+    p_pr.add_argument("--no-semgrep", action="store_true", help="Skip static analysis.")
+    p_pr.set_defaults(func=cmd_review_pr)
+
+    p_prov = sub.add_parser("providers", help="List available AI providers.")
+    p_prov.set_defaults(func=cmd_providers)
+
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    _force_utf8_output()
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    setup_logging(args.log_level)
+    try:
+        config = load_config()
+        return int(args.func(args, config))
+    except ConfigError as exc:
+        logger.error("Configuration error: %s", exc)
+        return 2
+    except AIProviderError as exc:
+        logger.error("AI provider error: %s", exc)
+        return 3
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

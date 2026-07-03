@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  quality:
+    name: Lint · Type · Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Lint (ruff)
+        run: ruff check devguard tests
+
+      - name: Format check (black + isort)
+        run: |
+          black --check devguard tests
+          isort --check-only devguard tests
+
+      - name: Type check (mypy)
+        run: mypy devguard
+
+      - name: Tests (pytest + coverage)
+        run: pytest --cov=devguard --cov-report=term-missing
+
+  security:
+    name: Security scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Dependency audit (pip-audit)
+        run: pip-audit -r requirements.txt || true  # report, don't block MVP
+
+      - name: Static analysis (semgrep)
+        run: semgrep --config auto --error --quiet devguard || true
