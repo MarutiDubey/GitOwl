@@ -15,6 +15,7 @@ from devguard.config import Config
 from devguard.diff_utils import DiffStats, compress_diff, parse_stats
 from devguard.logging_config import get_logger
 from devguard.models import Finding, ReviewResult, RiskLevel
+from devguard.policy import apply_policy
 from devguard.risk import heuristic_risk, reconcile
 
 logger = get_logger(__name__)
@@ -57,6 +58,10 @@ def review_diff(
     except AIProviderError:
         logger.exception("AI provider failed")
         raise
+
+    # Apply the repo policy before risk scoring so ignored / sub-threshold
+    # findings neither reach the comment nor inflate the risk level.
+    result.findings = apply_policy(result.findings, config.policy)
 
     heuristic = heuristic_risk(stats, result.findings)
     final_risk = reconcile(result.risk, heuristic)

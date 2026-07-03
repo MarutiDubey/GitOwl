@@ -2,9 +2,18 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
-from devguard.config import load_config
+from devguard.config import ConfigError, ReviewPolicy, load_config
+from devguard.models import Severity
+
+
+def _write_toml(tmp_path: Path, body: str) -> Path:
+    path = tmp_path / ".devguard.toml"
+    path.write_text(body, encoding="utf-8")
+    return path
 
 
 def test_defaults_to_openrouter(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -13,6 +22,57 @@ def test_defaults_to_openrouter(monkeypatch: pytest.MonkeyPatch) -> None:
     cfg = load_config()
     assert cfg.ai.provider == "openrouter"
     assert cfg.ai.model == "openai/gpt-4o-mini"
+
+
+def test_missing_toml_uses_default_policy(tmp_path: Path) -> None:
+    # Point at a directory with no .devguard.toml -> defaults, no error.
+    cfg = load_config(config_path=tmp_path / ".devguard.toml")
+    assert cfg.policy == ReviewPolicy()
+    assert cfg.policy.min_severity is Severity.INFO
+    assert cfg.policy.ignore_paths == ()
+
+
+def test_toml_review_policy_parsed(tmp_path: Path) -> None:
+    path = _write_toml(
+        tmp_path,
+        '[review]\nmin_severity = "warning"\nignore_paths = ["tests/**", "*.md"]\n',
+    )
+    cfg = load_config(config_path=path)
+    assert cfg.policy.min_severity is Severity.WARNING
+    assert cfg.policy.ignore_paths == ("tests/**", "*.md")
+
+
+def test_toml_ai_model_applied(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("AI_MODEL", raising=False)
+    path = _write_toml(tmp_path, '[ai]\nmodel = "anthropic/claude-3.5"\n')
+    cfg = load_config(config_path=path)
+    assert cfg.ai.model == "anthropic/claude-3.5"
+
+
+def test_env_model_overrides_toml(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    # Precedence proof: env wins over the toml file.
+    monkeypatch.setenv("AI_MODEL", "env/model")
+    path = _write_toml(tmp_path, '[ai]\nmodel = "toml/model"\n')
+    cfg = load_config(config_path=path)
+    assert cfg.ai.model == "env/model"
+
+
+def test_malformed_toml_raises(tmp_path: Path) -> None:
+    path = _write_toml(tmp_path, "this is = not valid toml [[[")
+    with pytest.raises(ConfigError):
+        load_config(config_path=path)
+
+
+def test_bad_min_severity_raises(tmp_path: Path) -> None:
+    path = _write_toml(tmp_path, '[review]\nmin_severity = "critical"\n')
+    with pytest.raises(ConfigError):
+        load_config(config_path=path)
+
+
+def test_ignore_paths_must_be_string_list(tmp_path: Path) -> None:
+    path = _write_toml(tmp_path, "[review]\nignore_paths = [1, 2]\n")
+    with pytest.raises(ConfigError):
+        load_config(config_path=path)
 
 
 def test_env_overrides_provider(monkeypatch: pytest.MonkeyPatch) -> None:

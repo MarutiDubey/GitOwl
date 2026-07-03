@@ -74,6 +74,36 @@ See [`devguard/ai_client/README.md`](devguard/ai_client/README.md) to add a prov
 
 ---
 
+## Configuration (`.devguard.toml`)
+
+Drop a `.devguard.toml` file at your repo root to set project-wide review policy.
+It's committed to the repo, so the whole team shares the same rules.
+
+```toml
+[review]
+# Hide findings below this level. One of: info | warning | error.
+# Default "info" reports everything.
+min_severity = "warning"
+
+# Glob patterns for files DevGuard should not report findings on.
+# Matches nested paths (e.g. "*.md" also matches "docs/x.md").
+ignore_paths = ["tests/**", "**/*.md", "vendor/**"]
+
+[ai]
+# Optional: pin the model for this repo (env AI_MODEL still overrides).
+model = "openai/gpt-4o-mini"
+```
+
+**Precedence** (lowest to highest): built-in defaults → `.devguard.toml` →
+environment variables. So the repo file sets the baseline, and a CI secret or a
+shell `export` can always override it for a single run. **API keys are never read
+from this file** — they stay in `.env` / environment only.
+
+Everything is optional; with no file present, DevGuard behaves exactly as before
+(reports every finding, ignores nothing).
+
+---
+
 ## GitHub Action
 
 `.github/workflows/devguard-review.yml` runs DevGuard on every PR

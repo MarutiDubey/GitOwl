@@ -81,8 +81,11 @@ project root/
 
 **Phase 1 (MVP) complete.** ✅
 
-### In Progress / To Do
-- [ ] _(Phase 2 — scope TBD)_
+### Phase 2 — Enhanced Review Features (in progress, 2026-07-03)
+- [x] `.devguard.toml` repo config — tunable `min_severity` + `ignore_paths` review policy, plus optional `[ai] model` (`devguard/config.py`, `devguard/policy.py`; filter wired into `reviewer.py` before risk scoring)
+- [ ] `/describe` — auto-generated PR summary/description
+- [ ] Fix suggestions (committable code suggestions, not auto-applied)
+- [ ] Cost/latency logging per review call
 
 > Update this list as tasks complete. Move done items to the Decisions/Completed log below.
 
@@ -178,6 +181,8 @@ Registry: `ai_client/registry.py`. To add a new provider, implement the interfac
 | 2026-07-03 | CI F1 gate enabled | `--fail-under 0.80` added to CI to guard against regression. |
 | 2026-07-03 | Live Eval Baseline established | `gpt-4o-mini` via OpenRouter scored P=0.909, R=0.909, F1=0.909 on the 12-case corpus (10 TP, 1 FP, 1 FN on eval_input). |
 | 2026-07-03 | Eval corpus expanded 6 → 12 cases; mock baseline precision 1.00 / recall 0.73 / F1 0.84 | Added a multi-bug diff, a `pickle` case (exercises a previously-uncovered detector), an f-string SQL case, benign/near-miss clean cases guarding precision, and os.system/yaml.load categories the mock deliberately can't catch (guaranteed FNs). `tests/test_eval.py` locks a per-case (tp,fp,fn) map so drift names the culprit. Corpus is now large enough to consider wiring a CI `--fail-under` gate. |
+| 2026-07-03 | `.devguard.toml` config precedence = defaults < toml < env | Repo file sets team-wide policy; per-run env/CI secrets must be able to override it. API keys never read from the toml (env-only) to keep the committed file safe. Uses stdlib `tomllib` (py≥3.11) — no new dependency. |
+| 2026-07-03 | Review policy filters findings *before* risk scoring | `apply_policy` runs in `reviewer.py` between the AI call and `heuristic_risk`, so `min_severity`/`ignore_paths` findings neither reach the PR comment nor inflate the risk level. `min_severity="info"` + no `ignore_paths` = default = zero behaviour change. |
 
 ---
 
