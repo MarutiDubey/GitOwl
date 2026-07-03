@@ -32,6 +32,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run DevGuard review
+        if: ${{ secrets.AI_API_KEY != '' }}
         env:
           # Provided by the repo/org secrets. Defaults to OpenRouter.
           AI_PROVIDER: ${{ vars.AI_PROVIDER || 'openrouter' }}
