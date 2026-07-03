@@ -51,9 +51,7 @@ class PricingTable:
         """Return ``(input, output)`` price per 1M tokens, or ``None`` if unknown."""
         return self._prices.get(_normalize(model))
 
-    def estimate_cost(
-        self, model: str, prompt_tokens: int, completion_tokens: int
-    ) -> float | None:
+    def estimate_cost(self, model: str, prompt_tokens: int, completion_tokens: int) -> float | None:
         """Estimate the USD cost of a call, or ``None`` when the model is unpriced.
 
         Input and output tokens are billed at their separate rates.
@@ -63,9 +61,7 @@ class PricingTable:
             logger.info("No pricing for model %r; cost estimate unavailable.", model)
             return None
         input_price, output_price = price
-        cost = (
-            prompt_tokens * input_price + completion_tokens * output_price
-        ) / _PER_TOKEN_DIVISOR
+        cost = (prompt_tokens * input_price + completion_tokens * output_price) / _PER_TOKEN_DIVISOR
         return round(cost, 6)
 
 
