@@ -75,9 +75,9 @@ project root/
 - [x] Structured PR comment output (`comment.py`)
 - [x] Test suite (39 tests, mocked AI) + CI (`.github/workflows/ci.yml`)
 - [x] Basic eval harness — seeded-bug corpus + precision/recall runner (`devguard/eval/`, `python -m devguard.eval`)
+- [x] Integration tests for CLI + github_client (`tests/test_cli.py`, `tests/test_github_client.py`; I/O layers now cli 99% / github_client 100%, total coverage 89%)
 
 ### In Progress / To Do
-- [ ] Integration tests for CLI + github_client (currently uncovered I/O layers)
 - [ ] Live end-to-end validation against a real PR with a real AI key
 
 > Update this list as tasks complete. Move done items to the Decisions/Completed log below.
