@@ -87,6 +87,26 @@ Configure in your repo settings:
 
 ---
 
+## Eval harness
+
+Measure DevGuard's review quality against a corpus of diffs with **known** seeded
+bugs — precision / recall / F1. Runs offline and deterministically by default.
+
+```bash
+python -m devguard.eval                  # mock provider (offline, no key)
+python -m devguard.eval --live           # score the real provider from .env
+python -m devguard.eval --json           # machine-readable output
+python -m devguard.eval --fail-under 0.9 # exit non-zero if aggregate F1 < 0.9
+```
+
+The corpus ships **12 cases** (weak hash, `eval`, hardcoded secret, SQL injection
+incl. f-string, unsafe `pickle`, a multi-bug diff, plus benign/clean cases and a
+few categories the offline mock intentionally can't catch). The mock baseline is
+**precision 1.00 / recall 0.73 / F1 0.84** — deliberately below 1.0 so the
+scoring math is genuinely exercised (a real provider via `--live` should do
+better). Cases live in [`devguard/eval/cases/`](devguard/eval/cases/) as
+`<name>.diff` + `<name>.expected.json` pairs — add your own to grow the corpus.
+
 ## Development
 
 ```bash

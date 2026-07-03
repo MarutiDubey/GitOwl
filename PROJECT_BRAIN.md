@@ -74,10 +74,10 @@ project root/
 - [x] Risk scoring (Low/Medium/High) with independent heuristic reconciliation (`risk.py`)
 - [x] Structured PR comment output (`comment.py`)
 - [x] Test suite (39 tests, mocked AI) + CI (`.github/workflows/ci.yml`)
+- [x] Basic eval harness — seeded-bug corpus + precision/recall runner (`devguard/eval/`, `python -m devguard.eval`)
+- [x] Integration tests for CLI + github_client (`tests/test_cli.py`, `tests/test_github_client.py`; I/O layers now cli 99% / github_client 100%, total coverage 89%)
 
 ### In Progress / To Do
-- [ ] Basic eval harness (seeded-bug sample repo to measure precision/recall)
-- [ ] Integration tests for CLI + github_client (currently uncovered I/O layers)
 - [ ] Live end-to-end validation against a real PR with a real AI key
 
 > Update this list as tasks complete. Move done items to the Decisions/Completed log below.
@@ -169,6 +169,9 @@ Registry: `ai_client/registry.py`. To add a new provider, implement the interfac
 | 2026-07-03 | AI providers share an OpenAI-compatible base | openrouter/openai/ollama all speak `/chat/completions`; only base URL + headers differ. |
 | 2026-07-03 | Risk = max(AI risk, heuristic risk) | Guards against a model under-reporting risk; heuristic keys off diff size + sensitive paths + finding severity. |
 | 2026-07-03 | CLI forces UTF-8 stdout | Windows cp1252 consoles crash on emoji in the rendered comment. |
+| 2026-07-03 | Eval harness: mock provider rediscovers bugs by regex, does NOT read the answer key | An answer-key mock would always score 100% and validate nothing; independent rediscovery keeps precision/recall < 1.0 so the scoring math is genuinely exercised. Mock deliberately has no `shell=True` detector → a guaranteed false negative that proves FN counting. |
+| 2026-07-03 | Eval runs mock by default, `--live` for real provider; no CI F1 gate yet | Mock = deterministic/offline/CI-safe. F1 threshold deferred until the baseline is run on ~10–15 real diffs. `pytest` already covers the harness against rot. |
+| 2026-07-03 | Eval corpus expanded 6 → 12 cases; mock baseline precision 1.00 / recall 0.73 / F1 0.84 | Added a multi-bug diff, a `pickle` case (exercises a previously-uncovered detector), an f-string SQL case, benign/near-miss clean cases guarding precision, and os.system/yaml.load categories the mock deliberately can't catch (guaranteed FNs). `tests/test_eval.py` locks a per-case (tp,fp,fn) map so drift names the culprit. Corpus is now large enough to consider wiring a CI `--fail-under` gate. |
 
 ---
 
