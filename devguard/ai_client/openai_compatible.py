@@ -11,9 +11,16 @@ import time
 import httpx
 
 from devguard.ai_client.base import AIProvider, AIProviderError
-from devguard.ai_client.prompt import SYSTEM_PROMPT, build_user_prompt, parse_review_response
+from devguard.ai_client.prompt import (
+    DESCRIBE_SYSTEM_PROMPT,
+    SYSTEM_PROMPT,
+    build_describe_prompt,
+    build_user_prompt,
+    parse_describe_response,
+    parse_review_response,
+)
 from devguard.logging_config import get_logger
-from devguard.models import Finding, ReviewResult, UsageStats
+from devguard.models import Finding, PrDescription, ReviewResult, UsageStats
 
 logger = get_logger(__name__)
 
@@ -37,23 +44,28 @@ class OpenAICompatibleProvider(AIProvider):
             headers["Authorization"] = f"Bearer {self.config.api_key}"
         return headers
 
-    def review(self, diff: str, findings: list[Finding]) -> ReviewResult:
+    def _require_key(self) -> None:
         if self.requires_api_key and not self.config.api_key:
             raise AIProviderError(
                 f"Provider '{self.name}' requires an API key. Set AI_API_KEY in .env."
             )
 
+    def _post_chat(self, system_prompt: str, user_prompt: str) -> tuple[str, dict, int]:
+        """POST a chat-completion and return ``(content, body, latency_ms)``.
+
+        Shared by :meth:`review` and :meth:`describe`; raises
+        :class:`AIProviderError` on transport, auth, or response-shape errors.
+        """
+        self._require_key()
         payload = {
             "model": self.config.model,
             "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": build_user_prompt(diff, findings)},
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
             ],
             "temperature": 0.1,
         }
-
         url = f"{self._base_url()}/chat/completions"
-        logger.info("Requesting review from %s model=%s", self.name, self.config.model)
         start = time.perf_counter()
         try:
             response = httpx.post(
@@ -77,6 +89,13 @@ class OpenAICompatibleProvider(AIProvider):
             content = body["choices"][0]["message"]["content"]
         except (KeyError, IndexError, ValueError) as exc:
             raise AIProviderError(f"{self.name} returned an unexpected response shape") from exc
+        return content, body, latency_ms
+
+    def review(self, diff: str, findings: list[Finding]) -> ReviewResult:
+        logger.info("Requesting review from %s model=%s", self.name, self.config.model)
+        content, body, latency_ms = self._post_chat(
+            SYSTEM_PROMPT, build_user_prompt(diff, findings)
+        )
 
         try:
             result = parse_review_response(content, findings)
@@ -87,6 +106,16 @@ class OpenAICompatibleProvider(AIProvider):
         # knows the repo's [pricing] overrides) once it has the token counts.
         result.usage = self._usage_from(body.get("usage"), latency_ms)
         return result
+
+    def describe(self, diff: str) -> PrDescription:
+        logger.info("Requesting description from %s model=%s", self.name, self.config.model)
+        content, _body, _latency_ms = self._post_chat(
+            DESCRIBE_SYSTEM_PROMPT, build_describe_prompt(diff)
+        )
+        try:
+            return parse_describe_response(content)
+        except (ValueError, KeyError) as exc:
+            raise AIProviderError(f"Could not parse {self.name} describe JSON: {exc}") from exc
 
     def _usage_from(self, usage: object, latency_ms: int) -> UsageStats:
         """Build a :class:`UsageStats` from the API's ``usage`` block (if present)."""

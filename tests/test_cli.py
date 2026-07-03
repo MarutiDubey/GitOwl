@@ -15,8 +15,12 @@ import pytest
 from devguard.cli import main
 from devguard.diff_utils import DiffStats
 from devguard.github_client import GitHubError
-from devguard.models import ReviewResult, RiskLevel
+from devguard.models import PrDescription, ReviewResult, RiskLevel
 from devguard.reviewer import Review
+
+
+def _canned_desc() -> PrDescription:
+    return PrDescription(title="Add x", summary="Adds x.", changes=["did x"])
 
 
 def _canned_review(summary: str = "Looks fine.") -> Review:
@@ -159,6 +163,78 @@ def test_review_pr_post_failure_exits_two(patched_config) -> None:
         patch("devguard.cli.review_diff", return_value=_canned_review()),
     ):
         assert main(["review-pr", "owner/repo", "5", "--post", "--no-semgrep"]) == 2
+
+
+# --- describe-diff -----------------------------------------------------------
+
+
+def test_describe_diff_prints_description(patched_config, tmp_path, capsys) -> None:
+    diff = tmp_path / "change.diff"
+    diff.write_text("diff --git a/a.py b/a.py\n+x = 1\n", encoding="utf-8")
+    with patch("devguard.cli.describe_diff", return_value=_canned_desc()):
+        assert main(["describe-diff", str(diff)]) == 0
+    out = capsys.readouterr().out
+    assert "## Add x" in out
+    assert "- did x" in out
+
+
+def test_describe_diff_empty_short_circuits(patched_config, tmp_path, capsys) -> None:
+    diff = tmp_path / "empty.diff"
+    diff.write_text("  \n", encoding="utf-8")
+    with patch("devguard.cli.describe_diff") as dd:
+        assert main(["describe-diff", str(diff)]) == 0
+    dd.assert_not_called()
+    assert "nothing to describe" in capsys.readouterr().out
+
+
+# --- describe-pr -------------------------------------------------------------
+
+
+def test_describe_pr_prints_without_posting(patched_config, capsys) -> None:
+    client = MagicMock()
+    client.fetch_pr_diff.return_value = "diff --git a/a.py b/a.py\n+x = 1\n"
+    with (
+        patch("devguard.github_client.GitHubClient", return_value=client),
+        patch("devguard.cli.describe_diff", return_value=_canned_desc()),
+    ):
+        assert main(["describe-pr", "owner/repo", "5"]) == 0
+    client.update_pr_body.assert_not_called()
+    assert "## Add x" in capsys.readouterr().out
+
+
+def test_describe_pr_post_updates_body(patched_config, capsys) -> None:
+    client = MagicMock()
+    client.fetch_pr_diff.return_value = "diff --git a/a.py b/a.py\n+x = 1\n"
+    client.fetch_pr_body.return_value = "Author text."
+    with (
+        patch("devguard.github_client.GitHubClient", return_value=client),
+        patch("devguard.cli.describe_diff", return_value=_canned_desc()),
+    ):
+        assert main(["describe-pr", "owner/repo", "5", "--post"]) == 0
+    client.update_pr_body.assert_called_once()
+    # The merged body preserves the author's text and adds our section.
+    posted = client.update_pr_body.call_args.args[2]
+    assert "Author text." in posted
+    assert "## Add x" in posted
+    assert "Updated PR description on owner/repo#5" in capsys.readouterr().out
+
+
+def test_describe_pr_without_token_is_config_error(config) -> None:
+    no_token = dataclasses.replace(config, github_token="")
+    with patch("devguard.cli.load_config", return_value=no_token):
+        assert main(["describe-pr", "owner/repo", "5"]) == 2
+
+
+def test_describe_pr_post_failure_exits_two(patched_config) -> None:
+    client = MagicMock()
+    client.fetch_pr_diff.return_value = "diff --git a/a.py b/a.py\n+x = 1\n"
+    client.fetch_pr_body.return_value = ""
+    client.update_pr_body.side_effect = GitHubError("403")
+    with (
+        patch("devguard.github_client.GitHubClient", return_value=client),
+        patch("devguard.cli.describe_diff", return_value=_canned_desc()),
+    ):
+        assert main(["describe-pr", "owner/repo", "5", "--post"]) == 2
 
 
 # --- semgrep helper ----------------------------------------------------------

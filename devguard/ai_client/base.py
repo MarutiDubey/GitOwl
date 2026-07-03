@@ -5,7 +5,7 @@ from __future__ import annotations
 import abc
 
 from devguard.config import AIConfig
-from devguard.models import Finding, ReviewResult
+from devguard.models import Finding, PrDescription, ReviewResult
 
 
 class AIProviderError(RuntimeError):
@@ -33,3 +33,12 @@ class AIProvider(abc.ABC):
         on unrecoverable failures (network, auth, malformed model output).
         """
         raise NotImplementedError
+
+    def describe(self, diff: str) -> PrDescription:
+        """Generate a PR description for ``diff``.
+
+        Optional capability: providers that talk to a real chat API implement
+        this. Others (e.g. the offline eval mock) inherit this default, which
+        signals the feature is unsupported.
+        """
+        raise AIProviderError(f"Provider '{self.name}' does not support describe.")

@@ -109,6 +109,39 @@ def test_post_wraps_http_errors() -> None:
             client.post_or_update_comment("owner/repo", 3, "hello")
 
 
+def test_fetch_pr_body_returns_body_string() -> None:
+    client = GitHubClient("t")
+    with patch(
+        "devguard.github_client.httpx.get",
+        return_value=_ok_response(json_body={"body": "hello"}),
+    ) as get:
+        assert client.fetch_pr_body("owner/repo", 7) == "hello"
+    assert get.call_args.args[0].endswith("/repos/owner/repo/pulls/7")
+
+
+def test_fetch_pr_body_null_becomes_empty_string() -> None:
+    client = GitHubClient("t")
+    with patch(
+        "devguard.github_client.httpx.get", return_value=_ok_response(json_body={"body": None})
+    ):
+        assert client.fetch_pr_body("owner/repo", 7) == ""
+
+
+def test_update_pr_body_patches_pull() -> None:
+    client = GitHubClient("t")
+    with patch("devguard.github_client.httpx.patch", return_value=_ok_response()) as patch_call:
+        client.update_pr_body("owner/repo", 7, "new body")
+    assert patch_call.call_args.args[0].endswith("/repos/owner/repo/pulls/7")
+    assert patch_call.call_args.kwargs["json"] == {"body": "new body"}
+
+
+def test_update_pr_body_wraps_http_errors() -> None:
+    client = GitHubClient("t")
+    with patch("devguard.github_client.httpx.patch", return_value=_failing_response()):
+        with pytest.raises(GitHubError, match="failed to update PR body"):
+            client.update_pr_body("owner/repo", 7, "x")
+
+
 def test_existing_comment_ignores_non_devguard_comments() -> None:
     client = GitHubClient("t")
     unrelated = [{"id": 1, "body": "just a normal review"}]

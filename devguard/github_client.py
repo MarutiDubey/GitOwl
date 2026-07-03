@@ -48,6 +48,26 @@ class GitHubClient:
             raise GitHubError(f"failed to fetch PR diff: {exc}") from exc
         return resp.text
 
+    def fetch_pr_body(self, repo: str, pr_number: int) -> str:
+        """Return the current body (description) of ``owner/repo`` PR ``pr_number``."""
+        url = f"{self._api_root}/repos/{repo}/pulls/{pr_number}"
+        try:
+            resp = httpx.get(url, headers=self._headers(), timeout=_TIMEOUT)
+            resp.raise_for_status()
+        except httpx.HTTPError as exc:
+            raise GitHubError(f"failed to fetch PR body: {exc}") from exc
+        return resp.json().get("body") or ""
+
+    def update_pr_body(self, repo: str, pr_number: int, body: str) -> None:
+        """Set the body (description) of ``owner/repo`` PR ``pr_number``."""
+        url = f"{self._api_root}/repos/{repo}/pulls/{pr_number}"
+        try:
+            resp = httpx.patch(url, headers=self._headers(), json={"body": body}, timeout=_TIMEOUT)
+            resp.raise_for_status()
+        except httpx.HTTPError as exc:
+            raise GitHubError(f"failed to update PR body: {exc}") from exc
+        logger.info("Updated PR description on %s#%d", repo, pr_number)
+
     def _existing_comment_id(self, repo: str, pr_number: int) -> int | None:
         """Find DevGuard's previous comment on this PR, if any."""
         url = f"{self._api_root}/repos/{repo}/issues/{pr_number}/comments"

@@ -85,3 +85,16 @@ class ReviewResult:
     dismissed: list[Finding] = field(default_factory=list)
     # Token/cost/latency of the AI call; None for mock or empty reviews.
     usage: UsageStats | None = None
+
+
+@dataclass
+class PrDescription:
+    """An AI-generated pull-request description (from ``describe``).
+
+    ``title`` is a one-line PR title; ``summary`` a short prose overview; and
+    ``changes`` a bullet list of the notable changes in the diff.
+    """
+
+    title: str
+    summary: str
+    changes: list[str] = field(default_factory=list)

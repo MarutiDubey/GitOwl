@@ -50,6 +50,25 @@ python -m devguard.cli review-pr MarutiDubey/DevGuard 42
 python -m devguard.cli review-pr MarutiDubey/DevGuard 42 --post
 ```
 
+### Describe a PR (auto-generated description)
+
+Generate a clear PR description (title + summary + change list) from a diff:
+
+```bash
+# From a diff (file or stdin) — prints the description
+python -m devguard.cli describe-diff my.diff
+git diff main...HEAD | python -m devguard.cli describe-diff -
+
+# From a GitHub PR — print it
+python -m devguard.cli describe-pr MarutiDubey/DevGuard 42
+
+# ...or write it into the PR body (between DevGuard markers, preserving your text)
+python -m devguard.cli describe-pr MarutiDubey/DevGuard 42 --post
+```
+
+`--post` only replaces DevGuard's own marked section, so any description you
+wrote by hand stays intact.
+
 ### List AI providers
 
 ```bash

@@ -85,8 +85,8 @@ project root/
 - [x] `.devguard.toml` repo config — tunable `min_severity` + `ignore_paths` review policy, plus optional `[ai] model` (`devguard/config.py`, `devguard/policy.py`; filter wired into `reviewer.py` before risk scoring)
 - [x] Cost/latency logging per review call — providers capture tokens + latency into `ReviewResult.usage`; `reviewer.py` prices the call via `devguard/pricing.py` (built-in table + optional `[pricing]` toml overrides) and logs it; `comment.py` renders a footer line
 - [x] Fix suggestions (foundation) — optional `suggestion` field on `Finding`; the AI proposes drop-in replacement code, rendered as a ```suggestion block in the comment (`models.py`, `ai_client/prompt.py`, `comment.py`). Verbatim/flush-left so it's copy-pasteable now and commit-ready when posted inline later.
-- [ ] Fix suggestions (inline) — post findings with a suggestion as inline review comments (Reviews API + diff line mapping) for GitHub's one-click "Commit suggestion" button
-- [ ] `/describe` — auto-generated PR summary/description
+- [x] `/describe` — auto-generated PR description (title + summary + change list). New `describe.py` orchestrator + `PrDescription` model + `describe`-prompt/parser; `describe-diff` / `describe-pr` CLI subcommands; `describe-pr --post` writes into the PR body between markers (preserves author text). Providers gained a `describe()` on the shared OpenAI-compatible base (HTTP extracted into `_post_chat`, reused by `review`).
+- [ ] Fix suggestions (inline) — post findings with a suggestion as inline review comments (Reviews API + diff line mapping) for GitHub's one-click "Commit suggestion" button — **only remaining Phase 2 polish item**
 
 > Update this list as tasks complete. Move done items to the Decisions/Completed log below.
 
@@ -187,6 +187,8 @@ Registry: `ai_client/registry.py`. To add a new provider, implement the interfac
 | 2026-07-04 | Cost/latency: provider captures tokens+latency, reviewer prices it | The provider (`openai_compatible.py`) only records raw tokens + measured latency into `ReviewResult.usage`; the reviewer applies the pricing table because that's where the full `Config` (with `[pricing]` overrides) lives — keeps providers dependency-free. |
 | 2026-07-04 | Pricing = hybrid hardcoded table + optional `[pricing]` toml override | `pricing.py` ships prices for common models (USD per 1M tokens, input/output billed separately); repo can override/extend via `[pricing]`. Unknown model → cost `None` → "cost unknown" rather than a wrong number. |
 | 2026-07-04 | Fix suggestions shipped in two steps; step 1 = summary block | GitHub's one-click "Commit suggestion" only works in *inline review comments*, not the summary comment DevGuard posts. Step 1 (this): optional `suggestion` on `Finding`, rendered as a flush-left, verbatim ```suggestion block (copy-pasteable, commit-ready). Step 2 (later): post inline via the Reviews API for true one-click. `_clean_suggestion` strips stray code fences the model adds despite the "bare code" instruction. |
+| 2026-07-04 | `/describe` mirrors the review CLI split (`describe-diff` / `describe-pr`) | Consistency with `review-diff`/`review-pr` — least surprising UX. Description is separate from review (no risk/findings): its own `PrDescription` model + prompt. HTTP call extracted into `_post_chat` on the OpenAI-compatible base so `review` and `describe` share transport/error handling; `describe` on the abstract base raises `AIProviderError` so the offline eval mock (review-only) is unaffected. |
+| 2026-07-04 | `describe-pr --post` edits only a marked section of the PR body | Wraps DevGuard's text in `<!-- devguard-describe:begin/end -->` markers and replaces just that block, so a re-run never clobbers description text the author wrote by hand. First run appends below existing text. |
 
 ---
 

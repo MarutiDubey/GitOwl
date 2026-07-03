@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import json
 
-from devguard.models import Finding, FindingSource, ReviewResult, RiskLevel, Severity
+from devguard.models import Finding, FindingSource, PrDescription, ReviewResult, RiskLevel, Severity
 
 SYSTEM_PROMPT = (
     "You are DevGuard, an expert code reviewer. You are given a unified diff "
@@ -137,4 +137,49 @@ def parse_review_response(content: str, semgrep_findings: list[Finding]) -> Revi
         risk=_coerce_risk(data.get("risk", "Medium")),
         findings=kept + ai_findings,
         dismissed=dismissed,
+    )
+
+
+DESCRIBE_SYSTEM_PROMPT = (
+    "You are DevGuard. You are given a unified diff from a GitHub pull request. "
+    "Write a clear, concise pull-request description a reviewer can read at a "
+    "glance. Describe what the change does and why — do NOT review it or flag "
+    "issues.\n\n"
+    "Respond with STRICT JSON only — no markdown, no prose outside the JSON. "
+    "Use exactly this schema:\n"
+    "{\n"
+    '  "title": "<one-line imperative PR title, <=70 chars>",\n'
+    '  "summary": "<2-4 sentence overview of what changed and why>",\n'
+    '  "changes": ["<notable change>", "<notable change>"]\n'
+    "}\n\n"
+    "Keep 'changes' to the handful of things that matter; omit trivia. Base "
+    "everything on the diff only — do not invent changes it does not contain."
+)
+
+
+def build_describe_prompt(diff: str) -> str:
+    """Assemble the user message asking for a PR description of ``diff``."""
+    return "\n".join(
+        [
+            "## Unified diff\n",
+            "```diff",
+            diff.strip(),
+            "```",
+            "",
+            "Return the JSON description now.",
+        ]
+    )
+
+
+def parse_describe_response(content: str) -> PrDescription:
+    """Parse the model's JSON response into a :class:`PrDescription`."""
+    data = _extract_json(content)
+
+    raw_changes = data.get("changes") or []
+    changes = [c.strip() for c in raw_changes if isinstance(c, str) and c.strip()]
+
+    return PrDescription(
+        title=str(data.get("title", "")).strip() or "Update",
+        summary=str(data.get("summary", "")).strip() or "No summary provided.",
+        changes=changes,
     )

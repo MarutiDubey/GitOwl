@@ -19,6 +19,7 @@ from devguard.ai_client.base import AIProviderError
 from devguard.ai_client.registry import available_providers
 from devguard.comment import render_comment
 from devguard.config import Config, ConfigError, load_config
+from devguard.describe import describe_diff, merge_into_body, render_description
 from devguard.logging_config import get_logger, setup_logging
 from devguard.reviewer import Review, empty_review, review_diff
 
@@ -113,6 +114,46 @@ def cmd_review_pr(args: argparse.Namespace, config: Config) -> int:
     return 0
 
 
+def cmd_describe_diff(args: argparse.Namespace, config: Config) -> int:
+    diff_text = _load_diff(args.file)
+    if not diff_text.strip():
+        print("Empty diff — nothing to describe.")
+        return 0
+    desc = describe_diff(diff_text, config)
+    print(render_description(desc))
+    return 0
+
+
+def cmd_describe_pr(args: argparse.Namespace, config: Config) -> int:
+    from devguard.github_client import GitHubClient, GitHubError
+
+    if not config.github_token:
+        raise ConfigError("GITHUB_TOKEN is required for describe-pr.")
+    client = GitHubClient(config.github_token)
+    try:
+        diff_text = client.fetch_pr_diff(args.repo, args.pr)
+    except GitHubError as exc:
+        logger.error("%s", exc)
+        return 2
+
+    if not diff_text.strip():
+        print("Empty diff — nothing to describe.")
+        return 0
+
+    section = render_description(describe_diff(diff_text, config))
+    if args.post:
+        try:
+            existing = client.fetch_pr_body(args.repo, args.pr)
+            client.update_pr_body(args.repo, args.pr, merge_into_body(existing, section))
+            print(f"Updated PR description on {args.repo}#{args.pr}")
+        except GitHubError as exc:
+            logger.error("%s", exc)
+            return 2
+    else:
+        print(section)
+    return 0
+
+
 def cmd_providers(_args: argparse.Namespace, config: Config) -> int:
     print("Available AI providers:")
     for name in available_providers():
@@ -145,6 +186,18 @@ def build_parser() -> argparse.ArgumentParser:
     p_pr.add_argument("--post", action="store_true", help="Post the review as a PR comment.")
     p_pr.add_argument("--no-semgrep", action="store_true", help="Skip static analysis.")
     p_pr.set_defaults(func=cmd_review_pr)
+
+    p_desc = sub.add_parser("describe-diff", help="Generate a PR description for a diff.")
+    p_desc.add_argument("file", nargs="?", help="Path to diff file, or '-' for stdin.")
+    p_desc.set_defaults(func=cmd_describe_diff)
+
+    p_desc_pr = sub.add_parser("describe-pr", help="Generate a PR description for a GitHub PR.")
+    p_desc_pr.add_argument("repo", help="owner/repo, e.g. MarutiDubey/DevGuard")
+    p_desc_pr.add_argument("pr", type=int, help="Pull request number.")
+    p_desc_pr.add_argument(
+        "--post", action="store_true", help="Write the description into the PR body."
+    )
+    p_desc_pr.set_defaults(func=cmd_describe_pr)
 
     p_prov = sub.add_parser("providers", help="List available AI providers.")
     p_prov.set_defaults(func=cmd_providers)
