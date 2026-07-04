@@ -72,6 +72,35 @@ def _naive_stats(diff: str) -> DiffStats:
     )
 
 
+def commentable_lines(diff: str) -> dict[str, set[int]]:
+    """Map each changed file to the set of new-file line numbers a PR review
+    comment may attach to.
+
+    GitHub's review-comment API only accepts a ``line`` that appears on the
+    RIGHT side of a hunk (an added or context line); anything else is a 422.
+    We collect exactly those line numbers so callers can drop findings that
+    point outside the diff before posting. Returns ``{}`` on unparseable diffs.
+    """
+    try:
+        patch = PatchSet(diff)
+    except (UnidiffParseError, Exception) as exc:  # noqa: BLE001 - defensive
+        logger.warning("Could not parse diff for commentable lines: %s", exc)
+        return {}
+
+    result: dict[str, set[int]] = {}
+    for pf in patch:
+        lines: set[int] = set()
+        for hunk in pf:
+            for line in hunk:
+                # target_line_no is the new-file line number; present for added
+                # and context lines, None for removals.
+                if line.target_line_no is not None and (line.is_added or line.is_context):
+                    lines.add(line.target_line_no)
+        if lines:
+            result[pf.path] = lines
+    return result
+
+
 def compress_diff(diff: str, max_lines: int) -> str:
     """Truncate ``diff`` to roughly ``max_lines`` lines, keeping headers.
 

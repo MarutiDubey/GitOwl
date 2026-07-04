@@ -48,6 +48,11 @@ python -m devguard.cli review-pr MarutiDubey/DevGuard 42
 
 # Post/update the review as a PR comment
 python -m devguard.cli review-pr MarutiDubey/DevGuard 42 --post
+
+# ...and post committable fixes as inline suggestions (GitHub's one-click
+# "Commit suggestion" button). Only findings whose fix lands on a changed
+# line are posted; the rest stay in the summary comment.
+python -m devguard.cli review-pr MarutiDubey/DevGuard 42 --post --suggest
 ```
 
 ### Describe a PR (auto-generated description)

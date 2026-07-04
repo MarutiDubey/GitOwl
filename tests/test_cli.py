@@ -135,6 +135,38 @@ def test_review_pr_post_flag_posts_comment(patched_config, capsys) -> None:
     assert "Posted review to owner/repo#5" in capsys.readouterr().out
 
 
+def test_review_pr_suggest_posts_inline(patched_config, capsys) -> None:
+    from devguard.suggest import InlineSuggestion
+
+    client = MagicMock()
+    client.fetch_pr_diff.return_value = "diff --git a/a.py b/a.py\n+x = 1\n"
+    client.post_review_comments.return_value = 1
+    canned = _canned_review()
+    with (
+        patch("devguard.github_client.GitHubClient", return_value=client),
+        patch("devguard.cli.review_diff", return_value=canned),
+        patch(
+            "devguard.suggest.build_inline_suggestions",
+            return_value=[InlineSuggestion(path="a.py", line=1, body="```suggestion\nx\n```")],
+        ),
+    ):
+        assert main(["review-pr", "owner/repo", "5", "--post", "--suggest", "--no-semgrep"]) == 0
+    client.post_review_comments.assert_called_once()
+    assert "Posted 1 inline suggestion(s)." in capsys.readouterr().out
+
+
+def test_review_pr_suggest_without_post_does_not_post(patched_config) -> None:
+    # --suggest only fires alongside --post; without --post nothing is sent.
+    client = MagicMock()
+    client.fetch_pr_diff.return_value = "diff --git a/a.py b/a.py\n+x = 1\n"
+    with (
+        patch("devguard.github_client.GitHubClient", return_value=client),
+        patch("devguard.cli.review_diff", return_value=_canned_review()),
+    ):
+        assert main(["review-pr", "owner/repo", "5", "--suggest", "--no-semgrep"]) == 0
+    client.post_review_comments.assert_not_called()
+
+
 def test_review_pr_empty_diff_short_circuits(patched_config, capsys) -> None:
     client = MagicMock()
     client.fetch_pr_diff.return_value = "   \n"

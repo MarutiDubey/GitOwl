@@ -81,14 +81,14 @@ project root/
 
 **Phase 1 (MVP) complete.** ✅
 
-### Phase 2 — Enhanced Review Features (in progress, 2026-07-03)
+### Phase 2 — Enhanced Review Features (COMPLETE, 2026-07-04)
 - [x] `.devguard.toml` repo config — tunable `min_severity` + `ignore_paths` review policy, plus optional `[ai] model` (`devguard/config.py`, `devguard/policy.py`; filter wired into `reviewer.py` before risk scoring)
 - [x] Cost/latency logging per review call — providers capture tokens + latency into `ReviewResult.usage`; `reviewer.py` prices the call via `devguard/pricing.py` (built-in table + optional `[pricing]` toml overrides) and logs it; `comment.py` renders a footer line
 - [x] Fix suggestions (foundation) — optional `suggestion` field on `Finding`; the AI proposes drop-in replacement code, rendered as a ```suggestion block in the comment (`models.py`, `ai_client/prompt.py`, `comment.py`). Verbatim/flush-left so it's copy-pasteable now and commit-ready when posted inline later.
 - [x] `/describe` — auto-generated PR description (title + summary + change list). New `describe.py` orchestrator + `PrDescription` model + `describe`-prompt/parser; `describe-diff` / `describe-pr` CLI subcommands; `describe-pr --post` writes into the PR body between markers (preserves author text). Providers gained a `describe()` on the shared OpenAI-compatible base (HTTP extracted into `_post_chat`, reused by `review`).
-- [ ] Fix suggestions (inline) — post findings with a suggestion as inline review comments (Reviews API + diff line mapping) for GitHub's one-click "Commit suggestion" button — **only remaining Phase 2 polish item**
+- [x] Fix suggestions (inline) — `review-pr --post --suggest` posts committable fixes as inline review comments (GitHub one-click "Commit suggestion"). `diff_utils.commentable_lines` maps the diff's RIGHT-side (added/context) line numbers; `suggest.py` keeps only findings whose fix lands on such a line (rest stay in the summary comment, no 422); `github_client.post_review_comments` sends them as one `event: COMMENT` review.
 
-> Update this list as tasks complete. Move done items to the Decisions/Completed log below.
+> Phase 2 done. Next: Phase 3 (see roadmap) or user direction.
 
 ---
 
@@ -189,6 +189,7 @@ Registry: `ai_client/registry.py`. To add a new provider, implement the interfac
 | 2026-07-04 | Fix suggestions shipped in two steps; step 1 = summary block | GitHub's one-click "Commit suggestion" only works in *inline review comments*, not the summary comment DevGuard posts. Step 1 (this): optional `suggestion` on `Finding`, rendered as a flush-left, verbatim ```suggestion block (copy-pasteable, commit-ready). Step 2 (later): post inline via the Reviews API for true one-click. `_clean_suggestion` strips stray code fences the model adds despite the "bare code" instruction. |
 | 2026-07-04 | `/describe` mirrors the review CLI split (`describe-diff` / `describe-pr`) | Consistency with `review-diff`/`review-pr` — least surprising UX. Description is separate from review (no risk/findings): its own `PrDescription` model + prompt. HTTP call extracted into `_post_chat` on the OpenAI-compatible base so `review` and `describe` share transport/error handling; `describe` on the abstract base raises `AIProviderError` so the offline eval mock (review-only) is unaffected. |
 | 2026-07-04 | `describe-pr --post` edits only a marked section of the PR body | Wraps DevGuard's text in `<!-- devguard-describe:begin/end -->` markers and replaces just that block, so a re-run never clobbers description text the author wrote by hand. First run appends below existing text. |
+| 2026-07-04 | Inline suggestions filter to commentable diff lines before posting | GitHub's review-comment API 422s on a `line` outside a hunk. `diff_utils.commentable_lines` collects RIGHT-side (added/context) new-file line numbers via `unidiff`; `suggest.build_inline_suggestions` drops findings whose fix isn't on such a line (they still appear in the summary comment). Posted as one `event: COMMENT` review so nothing approves/requests-changes. Gated behind `--suggest` (needs `--post`). |
 
 ---
 

@@ -142,6 +142,45 @@ def test_update_pr_body_wraps_http_errors() -> None:
             client.update_pr_body("owner/repo", 7, "x")
 
 
+def test_post_review_comments_sends_review_with_suggestions() -> None:
+    from devguard.suggest import InlineSuggestion
+
+    client = GitHubClient("t")
+    suggestions = [
+        InlineSuggestion(path="app.py", line=3, body="```suggestion\nx\n```"),
+        InlineSuggestion(path="util.py", line=1, body="```suggestion\ny\n```"),
+    ]
+    with patch("devguard.github_client.httpx.post", return_value=_ok_response()) as post:
+        assert client.post_review_comments("owner/repo", 5, suggestions) == 2
+    url = post.call_args.args[0]
+    body = post.call_args.kwargs["json"]
+    assert url.endswith("/repos/owner/repo/pulls/5/reviews")
+    assert body["event"] == "COMMENT"
+    assert body["comments"][0] == {
+        "path": "app.py",
+        "line": 3,
+        "side": "RIGHT",
+        "body": "```suggestion\nx\n```",
+    }
+
+
+def test_post_review_comments_empty_is_noop() -> None:
+    client = GitHubClient("t")
+    with patch("devguard.github_client.httpx.post") as post:
+        assert client.post_review_comments("owner/repo", 5, []) == 0
+    post.assert_not_called()
+
+
+def test_post_review_comments_wraps_http_errors() -> None:
+    from devguard.suggest import InlineSuggestion
+
+    client = GitHubClient("t")
+    suggestions = [InlineSuggestion(path="app.py", line=3, body="x")]
+    with patch("devguard.github_client.httpx.post", return_value=_failing_response()):
+        with pytest.raises(GitHubError, match="failed to post review suggestions"):
+            client.post_review_comments("owner/repo", 5, suggestions)
+
+
 def test_existing_comment_ignores_non_devguard_comments() -> None:
     client = GitHubClient("t")
     unrelated = [{"id": 1, "body": "just a normal review"}]

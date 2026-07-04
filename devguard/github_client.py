@@ -6,6 +6,7 @@ import httpx
 
 from devguard.comment import COMMENT_MARKER
 from devguard.logging_config import get_logger
+from devguard.suggest import InlineSuggestion
 
 logger = get_logger(__name__)
 
@@ -67,6 +68,33 @@ class GitHubClient:
         except httpx.HTTPError as exc:
             raise GitHubError(f"failed to update PR body: {exc}") from exc
         logger.info("Updated PR description on %s#%d", repo, pr_number)
+
+    def post_review_comments(
+        self, repo: str, pr_number: int, suggestions: list[InlineSuggestion]
+    ) -> int:
+        """Post ``suggestions`` as inline comments on a single PR review.
+
+        Returns the number posted. An empty list is a no-op (returns 0). The
+        comments go out as one ``event: COMMENT`` review so they land together
+        without approving or requesting changes.
+        """
+        if not suggestions:
+            return 0
+        url = f"{self._api_root}/repos/{repo}/pulls/{pr_number}/reviews"
+        payload = {
+            "event": "COMMENT",
+            "comments": [
+                {"path": s.path, "line": s.line, "side": "RIGHT", "body": s.body}
+                for s in suggestions
+            ],
+        }
+        try:
+            resp = httpx.post(url, headers=self._headers(), json=payload, timeout=_TIMEOUT)
+            resp.raise_for_status()
+        except httpx.HTTPError as exc:
+            raise GitHubError(f"failed to post review suggestions: {exc}") from exc
+        logger.info("Posted %d inline suggestion(s) to %s#%d", len(suggestions), repo, pr_number)
+        return len(suggestions)
 
     def _existing_comment_id(self, repo: str, pr_number: int) -> int | None:
         """Find DevGuard's previous comment on this PR, if any."""

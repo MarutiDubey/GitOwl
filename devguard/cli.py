@@ -106,6 +106,12 @@ def cmd_review_pr(args: argparse.Namespace, config: Config) -> int:
         try:
             client.post_or_update_comment(args.repo, args.pr, body)
             print(f"Posted review to {args.repo}#{args.pr}")
+            if args.suggest:
+                from devguard.suggest import build_inline_suggestions
+
+                suggestions = build_inline_suggestions(review.result.findings, diff_text)
+                posted = client.post_review_comments(args.repo, args.pr, suggestions)
+                print(f"Posted {posted} inline suggestion(s).")
         except GitHubError as exc:
             logger.error("%s", exc)
             return 2
@@ -184,6 +190,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_pr.add_argument("repo", help="owner/repo, e.g. MarutiDubey/DevGuard")
     p_pr.add_argument("pr", type=int, help="Pull request number.")
     p_pr.add_argument("--post", action="store_true", help="Post the review as a PR comment.")
+    p_pr.add_argument(
+        "--suggest",
+        action="store_true",
+        help="Also post committable fixes as inline suggestions (needs --post).",
+    )
     p_pr.add_argument("--no-semgrep", action="store_true", help="Skip static analysis.")
     p_pr.set_defaults(func=cmd_review_pr)
 
