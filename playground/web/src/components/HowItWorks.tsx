@@ -1,3 +1,5 @@
+import ScrollFloat from "./ScrollFloat";
+
 const STEPS = [
   {
     n: "1",
@@ -19,7 +21,16 @@ const STEPS = [
 export function HowItWorks() {
   return (
     <section className="how">
-      <h2>How it works</h2>
+      <ScrollFloat
+        animationDuration={1}
+        ease="back.inOut(2)"
+        scrollStart="center bottom+=50%"
+        scrollEnd="bottom bottom-=40%"
+        stagger={0.04}
+        textClassName="how-heading"
+      >
+        How it works
+      </ScrollFloat>
       <div className="how-grid">
         {STEPS.map((s) => (
           <div className="how-step" key={s.n}>
@@ -32,3 +43,4 @@ export function HowItWorks() {
     </section>
   );
 }
+

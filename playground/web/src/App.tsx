@@ -8,6 +8,7 @@ import { Features } from "./components/Features";
 import { Setup } from "./components/Setup";
 import { reviewDiff, ReviewApiError, EXAMPLE_DIFF, type ReviewResponse } from "./api";
 import { CustomCursor } from "./components/CustomCursor";
+import ScrollFloat from "./components/ScrollFloat";
 
 const REPO_URL = "https://github.com/MarutiDubey/GitOwl";
 
@@ -125,7 +126,16 @@ function App() {
 
         <Reveal>
           <section className="try">
-            <h2>Try it live</h2>
+            <ScrollFloat
+              animationDuration={1}
+              ease="back.inOut(2)"
+              scrollStart="center bottom+=50%"
+              scrollEnd="bottom bottom-=40%"
+              stagger={0.04}
+              textClassName="try-heading"
+            >
+              Try it live
+            </ScrollFloat>
             <p className="try-sub">
               Pick an example or paste a diff — see a real GitOwl review right here. No signup,
               nothing stored.
