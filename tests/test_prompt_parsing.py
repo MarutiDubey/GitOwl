@@ -1,4 +1,4 @@
-"""Tests for AI response parsing (the fragile boundary with the model)."""
+﻿"""Tests for AI response parsing (the fragile boundary with the model)."""
 
 from __future__ import annotations
 
@@ -6,8 +6,8 @@ import json
 
 import pytest
 
-from devguard.ai_client.prompt import build_user_prompt, parse_review_response
-from devguard.models import Finding, FindingSource, RiskLevel, Severity
+from gitowl.ai_client.prompt import build_user_prompt, parse_review_response
+from gitowl.models import Finding, FindingSource, RiskLevel, Severity
 
 
 def _semgrep(rule_id: str) -> Finding:
@@ -151,7 +151,7 @@ def test_parse_literal_null_string_suggestion_is_none() -> None:
 
 
 def test_system_prompt_documents_suggestion() -> None:
-    from devguard.ai_client.prompt import SYSTEM_PROMPT
+    from gitowl.ai_client.prompt import SYSTEM_PROMPT
 
     assert "suggestion" in SYSTEM_PROMPT
 

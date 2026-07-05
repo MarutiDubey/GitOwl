@@ -1,10 +1,10 @@
-"""Tests for the review policy filter (severity threshold + ignore paths)."""
+﻿"""Tests for the review policy filter (severity threshold + ignore paths)."""
 
 from __future__ import annotations
 
-from devguard.config import ReviewPolicy
-from devguard.models import Finding, FindingSource, Severity
-from devguard.policy import apply_policy, is_ignored, meets_threshold, severity_rank
+from gitowl.config import ReviewPolicy
+from gitowl.models import Finding, FindingSource, Severity
+from gitowl.policy import apply_policy, is_ignored, meets_threshold, severity_rank
 
 
 def _finding(severity: Severity, file: str | None = "src/app.py") -> Finding:

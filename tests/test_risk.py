@@ -1,10 +1,10 @@
-"""Tests for heuristic risk scoring and reconciliation."""
+﻿"""Tests for heuristic risk scoring and reconciliation."""
 
 from __future__ import annotations
 
-from devguard.diff_utils import DiffStats
-from devguard.models import Finding, FindingSource, RiskLevel, Severity
-from devguard.risk import heuristic_risk, reconcile, touches_sensitive_paths
+from gitowl.diff_utils import DiffStats
+from gitowl.models import Finding, FindingSource, RiskLevel, Severity
+from gitowl.risk import heuristic_risk, reconcile, touches_sensitive_paths
 
 
 def _stats(files: list[str], added: int = 10, removed: int = 0) -> DiffStats:

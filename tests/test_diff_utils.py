@@ -1,8 +1,8 @@
-"""Tests for diff parsing and compression."""
+﻿"""Tests for diff parsing and compression."""
 
 from __future__ import annotations
 
-from devguard.diff_utils import compress_diff, parse_stats
+from gitowl.diff_utils import compress_diff, parse_stats
 
 
 def test_parse_stats_counts_files_and_lines(sample_diff: str) -> None:
@@ -27,7 +27,7 @@ def test_compress_diff_leaves_small_diffs_untouched(sample_diff: str) -> None:
 def test_compress_diff_truncates_large_diffs() -> None:
     big = "diff --git a/x b/x\n" + "\n".join(f"+line {i}" for i in range(5000))
     out = compress_diff(big, max_lines=100)
-    assert "DevGuard truncated" in out
+    assert "GitOwl truncated" in out
     assert len(out.splitlines()) < 5000
     # Header line is always preserved.
     assert out.startswith("diff --git a/x b/x")

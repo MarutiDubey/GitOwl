@@ -1,4 +1,4 @@
-"""Diff parsing and compression helpers.
+﻿"""Diff parsing and compression helpers.
 
 Large PRs can blow past model context limits, so we compress diffs beyond
 ``MAX_DIFF_LINES`` by truncating per-file hunks while preserving structure.
@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from unidiff import PatchSet
 from unidiff.errors import UnidiffParseError
 
-from devguard.logging_config import get_logger
+from gitowl.logging_config import get_logger
 
 logger = get_logger(__name__)
 
@@ -125,5 +125,5 @@ def compress_diff(diff: str, max_lines: int) -> str:
         else:
             elided += 1
     if elided:
-        kept.append(f"\n... [DevGuard truncated {elided} lines to fit context limit] ...")
+        kept.append(f"\n... [GitOwl truncated {elided} lines to fit context limit] ...")
     return "\n".join(kept)

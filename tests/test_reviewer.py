@@ -1,13 +1,13 @@
-"""Tests for the review orchestrator (provider mocked)."""
+﻿"""Tests for the review orchestrator (provider mocked)."""
 
 from __future__ import annotations
 
 import dataclasses
 from unittest.mock import MagicMock, patch
 
-from devguard.config import Config, ReviewPolicy
-from devguard.models import Finding, FindingSource, ReviewResult, RiskLevel, Severity, UsageStats
-from devguard.reviewer import empty_review, review_diff
+from gitowl.config import Config, ReviewPolicy
+from gitowl.models import Finding, FindingSource, ReviewResult, RiskLevel, Severity, UsageStats
+from gitowl.reviewer import empty_review, review_diff
 
 
 def _fake_result(risk: RiskLevel = RiskLevel.LOW) -> ReviewResult:
@@ -17,7 +17,7 @@ def _fake_result(risk: RiskLevel = RiskLevel.LOW) -> ReviewResult:
 def test_review_diff_calls_provider_and_returns_stats(sample_diff: str, config: Config) -> None:
     provider = MagicMock()
     provider.review.return_value = _fake_result()
-    with patch("devguard.reviewer.get_provider", return_value=provider):
+    with patch("gitowl.reviewer.get_provider", return_value=provider):
         review = review_diff(sample_diff, config, semgrep_findings=[])
     provider.review.assert_called_once()
     assert review.stats.files_changed == 1
@@ -27,7 +27,7 @@ def test_heuristic_raises_risk_above_ai(sample_diff: str, config: Config) -> Non
     # AI says Low, but the diff touches auth/ with real change -> heuristic bumps it.
     provider = MagicMock()
     provider.review.return_value = _fake_result(RiskLevel.LOW)
-    with patch("devguard.reviewer.get_provider", return_value=provider):
+    with patch("gitowl.reviewer.get_provider", return_value=provider):
         review = review_diff(sample_diff, config, semgrep_findings=[])
     assert review.result.risk in (RiskLevel.MEDIUM, RiskLevel.HIGH)
 
@@ -46,7 +46,7 @@ def test_error_finding_forces_high(sample_diff: str, config: Config) -> None:
             )
         ],
     )
-    with patch("devguard.reviewer.get_provider", return_value=provider):
+    with patch("gitowl.reviewer.get_provider", return_value=provider):
         review = review_diff(sample_diff, config, semgrep_findings=[])
     assert review.result.risk is RiskLevel.HIGH
 
@@ -71,7 +71,7 @@ def test_policy_drops_finding_and_keeps_risk_low(sample_diff: str, config: Confi
             )
         ],
     )
-    with patch("devguard.reviewer.get_provider", return_value=provider):
+    with patch("gitowl.reviewer.get_provider", return_value=provider):
         review = review_diff(sample_diff, cfg, semgrep_findings=[])
     assert review.result.findings == []
 
@@ -94,7 +94,7 @@ def test_policy_ignores_path(sample_diff: str, config: Config) -> None:
             )
         ],
     )
-    with patch("devguard.reviewer.get_provider", return_value=provider):
+    with patch("gitowl.reviewer.get_provider", return_value=provider):
         review = review_diff(sample_diff, cfg, semgrep_findings=[])
     assert review.result.findings == []
 
@@ -114,7 +114,7 @@ def test_reviewer_prices_usage_from_pricing_table(sample_diff: str, config: Conf
     result = ReviewResult(summary="s", risk=RiskLevel.LOW, findings=[], usage=_usage())
     provider = MagicMock()
     provider.review.return_value = result
-    with patch("devguard.reviewer.get_provider", return_value=provider):
+    with patch("gitowl.reviewer.get_provider", return_value=provider):
         review = review_diff(sample_diff, config, semgrep_findings=[])
     # gpt-4o-mini (0.15, 0.60): 1M in + 1M out => 0.75.
     assert review.result.usage is not None
@@ -126,7 +126,7 @@ def test_reviewer_uses_pricing_override(sample_diff: str, config: Config) -> Non
     result = ReviewResult(summary="s", risk=RiskLevel.LOW, findings=[], usage=_usage())
     provider = MagicMock()
     provider.review.return_value = result
-    with patch("devguard.reviewer.get_provider", return_value=provider):
+    with patch("gitowl.reviewer.get_provider", return_value=provider):
         review = review_diff(sample_diff, cfg, semgrep_findings=[])
     # Override (1.0, 2.0): 1M in + 1M out => 3.0.
     assert review.result.usage is not None
@@ -139,7 +139,7 @@ def test_reviewer_leaves_cost_none_for_unknown_model(sample_diff: str, config: C
     )
     provider = MagicMock()
     provider.review.return_value = result
-    with patch("devguard.reviewer.get_provider", return_value=provider):
+    with patch("gitowl.reviewer.get_provider", return_value=provider):
         review = review_diff(sample_diff, config, semgrep_findings=[])
     assert review.result.usage is not None
     assert review.result.usage.estimated_cost_usd is None
@@ -150,7 +150,7 @@ def test_reviewer_handles_missing_usage(sample_diff: str, config: Config) -> Non
     result = ReviewResult(summary="s", risk=RiskLevel.LOW, findings=[], usage=None)
     provider = MagicMock()
     provider.review.return_value = result
-    with patch("devguard.reviewer.get_provider", return_value=provider):
+    with patch("gitowl.reviewer.get_provider", return_value=provider):
         review = review_diff(sample_diff, config, semgrep_findings=[])
     assert review.result.usage is None
 

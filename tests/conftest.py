@@ -1,4 +1,4 @@
-"""Shared pytest fixtures."""
+﻿"""Shared pytest fixtures."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from devguard.config import AIConfig, Config
+from gitowl.config import AIConfig, Config
 
 FIXTURES = Path(__file__).parent / "fixtures"
 

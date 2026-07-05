@@ -1,4 +1,4 @@
-# DevGuard development / test dependencies.
+﻿# GitOwl development / test dependencies.
 -r requirements.txt
 
 # Testing

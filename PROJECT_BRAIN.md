@@ -1,4 +1,4 @@
-# PROJECT BRAIN — DevGuard
+﻿# PROJECT BRAIN — GitOwl
 > Read this first. Single source of truth for any AI agent working on this project.
 > Update this file when you make significant decisions, finish a phase, or discover a gotcha.
 
@@ -6,7 +6,7 @@
 
 ## What This Project Is
 
-**DevGuard** — AI-assisted code review tool for GitHub pull requests.
+**GitOwl** — AI-assisted code review tool for GitHub pull requests.
 
 **Flow:** PR opened → GitHub Action triggers → Semgrep scans diff for bug/security patterns → AI model reads diff + Semgrep findings, filters false positives, adds reasoning-based observations → assigns risk score (Low/Medium/High) → posts structured comment back to PR.
 
@@ -50,9 +50,9 @@ project root/
 │       ├── caveman-help/
 │       ├── caveman-stats/
 │       └── cavecrew/
-├── devguard/              ← Core Python application
+├── gitowl/              ← Core Python application
 │   ├── ai_client/         ← Provider-agnostic AI layer (registry.py = entry point)
-│   ├── cli.py             ← CLI entry point: `python -m devguard.cli --help`
+│   ├── cli.py             ← CLI entry point: `python -m gitowl.cli --help`
 │   └── ...
 ├── tests/                 ← pytest test suite
 ├── .env.example           ← Environment template (copy to .env)
@@ -67,14 +67,14 @@ project root/
 **Phase 1 — MVP (Core Review Engine)**
 
 ### Done (initial vertical slice, 2026-07-03)
-- [x] GitHub Action trigger on PR open/sync (`.github/workflows/devguard-review.yml`)
+- [x] GitHub Action trigger on PR open/sync (`.github/workflows/gitowl-review.yml`)
 - [x] Diff fetching + compression (`github_client.py`, `diff_utils.compress_diff`)
 - [x] Semgrep integration for static analysis (`semgrep_runner.py`)
 - [x] AI-powered review — contextualized findings + reasoning (`reviewer.py`, `ai_client/`)
 - [x] Risk scoring (Low/Medium/High) with independent heuristic reconciliation (`risk.py`)
 - [x] Structured PR comment output (`comment.py`)
 - [x] Test suite (39 tests, mocked AI) + CI (`.github/workflows/ci.yml`)
-- [x] Basic eval harness — seeded-bug corpus + precision/recall runner (`devguard/eval/`, `python -m devguard.eval`)
+- [x] Basic eval harness — seeded-bug corpus + precision/recall runner (`gitowl/eval/`, `python -m gitowl.eval`)
 - [x] Integration tests for CLI + github_client (`tests/test_cli.py`, `tests/test_github_client.py`; I/O layers now cli 99% / github_client 100%, total coverage 89%)
 - [x] CI eval F1 gate (`--fail-under 0.80` in `.github/workflows/ci.yml`)
 - [x] Live end-to-end validation — `gpt-4o-mini` via OpenRouter scored P/R/F1 = 0.909 on the 12-case corpus
@@ -82,8 +82,8 @@ project root/
 **Phase 1 (MVP) complete.** ✅
 
 ### Phase 2 — Enhanced Review Features (COMPLETE, 2026-07-04)
-- [x] `.devguard.toml` repo config — tunable `min_severity` + `ignore_paths` review policy, plus optional `[ai] model` (`devguard/config.py`, `devguard/policy.py`; filter wired into `reviewer.py` before risk scoring)
-- [x] Cost/latency logging per review call — providers capture tokens + latency into `ReviewResult.usage`; `reviewer.py` prices the call via `devguard/pricing.py` (built-in table + optional `[pricing]` toml overrides) and logs it; `comment.py` renders a footer line
+- [x] `.gitowl.toml` repo config — tunable `min_severity` + `ignore_paths` review policy, plus optional `[ai] model` (`gitowl/config.py`, `gitowl/policy.py`; filter wired into `reviewer.py` before risk scoring)
+- [x] Cost/latency logging per review call — providers capture tokens + latency into `ReviewResult.usage`; `reviewer.py` prices the call via `gitowl/pricing.py` (built-in table + optional `[pricing]` toml overrides) and logs it; `comment.py` renders a footer line
 - [x] Fix suggestions (foundation) — optional `suggestion` field on `Finding`; the AI proposes drop-in replacement code, rendered as a ```suggestion block in the comment (`models.py`, `ai_client/prompt.py`, `comment.py`). Verbatim/flush-left so it's copy-pasteable now and commit-ready when posted inline later.
 - [x] `/describe` — auto-generated PR description (title + summary + change list). New `describe.py` orchestrator + `PrDescription` model + `describe`-prompt/parser; `describe-diff` / `describe-pr` CLI subcommands; `describe-pr --post` writes into the PR body between markers (preserves author text). Providers gained a `describe()` on the shared OpenAI-compatible base (HTTP extracted into `_post_chat`, reused by `review`).
 - [x] Fix suggestions (inline) — `review-pr --post --suggest` posts committable fixes as inline review comments (GitHub one-click "Commit suggestion"). `diff_utils.commentable_lines` maps the diff's RIGHT-side (added/context) line numbers; `suggest.py` keeps only findings whose fix lands on such a line (rest stay in the summary comment, no 422); `github_client.post_review_comments` sends them as one `event: COMMENT` review.
@@ -96,17 +96,17 @@ project root/
 
 ```bash
 # Run app locally
-python -m devguard.cli --help
+python -m gitowl.cli --help
 
 # Run tests
 pytest
-pytest --cov=devguard
+pytest --cov=gitowl
 
 # Lint + format check
 pre-commit run --all-files
 black .
 isort .
-mypy devguard/
+mypy gitowl/
 
 # Start local AI (default)
 ollama serve
@@ -153,7 +153,7 @@ Merge strategy: feature → develop = squash merge. develop → main = merge com
 
 ## AI Provider Abstraction
 
-All providers implement the same interface in `devguard/ai_client/`:
+All providers implement the same interface in `gitowl/ai_client/`:
 ```python
 review(diff, findings) -> ReviewResult
 ```
@@ -182,13 +182,13 @@ Registry: `ai_client/registry.py`. To add a new provider, implement the interfac
 | 2026-07-03 | CI F1 gate enabled | `--fail-under 0.80` added to CI to guard against regression. |
 | 2026-07-03 | Live Eval Baseline established | `gpt-4o-mini` via OpenRouter scored P=0.909, R=0.909, F1=0.909 on the 12-case corpus (10 TP, 1 FP, 1 FN on eval_input). |
 | 2026-07-03 | Eval corpus expanded 6 → 12 cases; mock baseline precision 1.00 / recall 0.73 / F1 0.84 | Added a multi-bug diff, a `pickle` case (exercises a previously-uncovered detector), an f-string SQL case, benign/near-miss clean cases guarding precision, and os.system/yaml.load categories the mock deliberately can't catch (guaranteed FNs). `tests/test_eval.py` locks a per-case (tp,fp,fn) map so drift names the culprit. Corpus is now large enough to consider wiring a CI `--fail-under` gate. |
-| 2026-07-03 | `.devguard.toml` config precedence = defaults < toml < env | Repo file sets team-wide policy; per-run env/CI secrets must be able to override it. API keys never read from the toml (env-only) to keep the committed file safe. Uses stdlib `tomllib` (py≥3.11) — no new dependency. |
+| 2026-07-03 | `.gitowl.toml` config precedence = defaults < toml < env | Repo file sets team-wide policy; per-run env/CI secrets must be able to override it. API keys never read from the toml (env-only) to keep the committed file safe. Uses stdlib `tomllib` (py≥3.11) — no new dependency. |
 | 2026-07-03 | Review policy filters findings *before* risk scoring | `apply_policy` runs in `reviewer.py` between the AI call and `heuristic_risk`, so `min_severity`/`ignore_paths` findings neither reach the PR comment nor inflate the risk level. `min_severity="info"` + no `ignore_paths` = default = zero behaviour change. |
 | 2026-07-04 | Cost/latency: provider captures tokens+latency, reviewer prices it | The provider (`openai_compatible.py`) only records raw tokens + measured latency into `ReviewResult.usage`; the reviewer applies the pricing table because that's where the full `Config` (with `[pricing]` overrides) lives — keeps providers dependency-free. |
 | 2026-07-04 | Pricing = hybrid hardcoded table + optional `[pricing]` toml override | `pricing.py` ships prices for common models (USD per 1M tokens, input/output billed separately); repo can override/extend via `[pricing]`. Unknown model → cost `None` → "cost unknown" rather than a wrong number. |
-| 2026-07-04 | Fix suggestions shipped in two steps; step 1 = summary block | GitHub's one-click "Commit suggestion" only works in *inline review comments*, not the summary comment DevGuard posts. Step 1 (this): optional `suggestion` on `Finding`, rendered as a flush-left, verbatim ```suggestion block (copy-pasteable, commit-ready). Step 2 (later): post inline via the Reviews API for true one-click. `_clean_suggestion` strips stray code fences the model adds despite the "bare code" instruction. |
+| 2026-07-04 | Fix suggestions shipped in two steps; step 1 = summary block | GitHub's one-click "Commit suggestion" only works in *inline review comments*, not the summary comment GitOwl posts. Step 1 (this): optional `suggestion` on `Finding`, rendered as a flush-left, verbatim ```suggestion block (copy-pasteable, commit-ready). Step 2 (later): post inline via the Reviews API for true one-click. `_clean_suggestion` strips stray code fences the model adds despite the "bare code" instruction. |
 | 2026-07-04 | `/describe` mirrors the review CLI split (`describe-diff` / `describe-pr`) | Consistency with `review-diff`/`review-pr` — least surprising UX. Description is separate from review (no risk/findings): its own `PrDescription` model + prompt. HTTP call extracted into `_post_chat` on the OpenAI-compatible base so `review` and `describe` share transport/error handling; `describe` on the abstract base raises `AIProviderError` so the offline eval mock (review-only) is unaffected. |
-| 2026-07-04 | `describe-pr --post` edits only a marked section of the PR body | Wraps DevGuard's text in `<!-- devguard-describe:begin/end -->` markers and replaces just that block, so a re-run never clobbers description text the author wrote by hand. First run appends below existing text. |
+| 2026-07-04 | `describe-pr --post` edits only a marked section of the PR body | Wraps GitOwl's text in `<!-- gitowl-describe:begin/end -->` markers and replaces just that block, so a re-run never clobbers description text the author wrote by hand. First run appends below existing text. |
 | 2026-07-04 | Inline suggestions filter to commentable diff lines before posting | GitHub's review-comment API 422s on a `line` outside a hunk. `diff_utils.commentable_lines` collects RIGHT-side (added/context) new-file line numbers via `unidiff`; `suggest.build_inline_suggestions` drops findings whose fix isn't on such a line (they still appear in the summary comment). Posted as one `event: COMMENT` review so nothing approves/requests-changes. Gated behind `--suggest` (needs `--post`). |
 
 ---
@@ -197,7 +197,7 @@ Registry: `ai_client/registry.py`. To add a new provider, implement the interfac
 
 - **Windows:** Use `.venv\Scripts\activate` not `source .venv/bin/activate`
 - **Ollama:** Must run `ollama serve` separately before starting the app
-- **Large diffs:** DevGuard compresses diffs > MAX_DIFF_LINES (default 2000) — set in .env
+- **Large diffs:** GitOwl compresses diffs > MAX_DIFF_LINES (default 2000) — set in .env
 - **Semgrep timeout:** Configurable via SEMGREP_TIMEOUT_SECONDS in .env (default 60s)
 - **JSONC in settings:** Any JSON config reader must handle comments (JSONC format)
 

@@ -1,9 +1,9 @@
-"""Model pricing and cost estimation for AI review calls.
+﻿"""Model pricing and cost estimation for AI review calls.
 
 Prices are USD per 1,000,000 tokens, quoted as ``(input, output)`` — the two
 sides most providers bill separately. The built-in table below is a convenience
 default for the common models; a repo can override or extend it via the
-``[pricing]`` table in ``.devguard.toml`` (see :mod:`devguard.config`).
+``[pricing]`` table in ``.gitowl.toml`` (see :mod:`gitowl.config`).
 
 Estimation is best-effort: an unknown model yields ``None`` cost rather than a
 wrong number, and the caller surfaces "cost unknown" instead of guessing.
@@ -11,7 +11,7 @@ wrong number, and the caller surfaces "cost unknown" instead of guessing.
 
 from __future__ import annotations
 
-from devguard.logging_config import get_logger
+from gitowl.logging_config import get_logger
 
 logger = get_logger(__name__)
 

@@ -1,6 +1,6 @@
-"""Precision/recall scoring for the eval harness — pure, no I/O.
+﻿"""Precision/recall scoring for the eval harness — pure, no I/O.
 
-Compares DevGuard's emitted :class:`~devguard.models.Finding` list against a
+Compares GitOwl's emitted :class:`~gitowl.models.Finding` list against a
 ground-truth manifest of seeded bugs and produces precision/recall/F1.
 
 Matching is deterministic: a finding is a candidate true positive for an
@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from devguard.models import Finding
+from gitowl.models import Finding
 
 DEFAULT_LINE_TOLERANCE = 2
 

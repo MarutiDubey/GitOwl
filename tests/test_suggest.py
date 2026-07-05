@@ -1,10 +1,10 @@
-"""Tests for building inline PR suggestions from findings."""
+﻿"""Tests for building inline PR suggestions from findings."""
 
 from __future__ import annotations
 
-from devguard.diff_utils import commentable_lines
-from devguard.models import Finding, FindingSource, Severity
-from devguard.suggest import build_inline_suggestions
+from gitowl.diff_utils import commentable_lines
+from gitowl.models import Finding, FindingSource, Severity
+from gitowl.suggest import build_inline_suggestions
 
 # A two-file diff. In b/app.py the new-file lines 1-3 are added/context; in
 # b/util.py line 1 is added. Nothing is commentable in a non-existent file.

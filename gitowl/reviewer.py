@@ -1,6 +1,6 @@
-"""Orchestrator: diff + Semgrep -> AI review -> risk-scored result.
+﻿"""Orchestrator: diff + Semgrep -> AI review -> risk-scored result.
 
-This is the heart of DevGuard. It is deliberately I/O-light: callers supply the
+This is the heart of GitOwl. It is deliberately I/O-light: callers supply the
 diff and (optionally) Semgrep findings, and it returns a finished
 :class:`ReviewResult`. The CLI and GitHub Action wire this to real sources.
 """
@@ -9,15 +9,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 
-from devguard.ai_client import get_provider
-from devguard.ai_client.base import AIProviderError
-from devguard.config import Config
-from devguard.diff_utils import DiffStats, compress_diff, parse_stats
-from devguard.logging_config import get_logger
-from devguard.models import Finding, ReviewResult, RiskLevel
-from devguard.policy import apply_policy
-from devguard.pricing import PricingTable
-from devguard.risk import heuristic_risk, reconcile
+from gitowl.ai_client import get_provider
+from gitowl.ai_client.base import AIProviderError
+from gitowl.config import Config
+from gitowl.diff_utils import DiffStats, compress_diff, parse_stats
+from gitowl.logging_config import get_logger
+from gitowl.models import Finding, ReviewResult, RiskLevel
+from gitowl.policy import apply_policy
+from gitowl.pricing import PricingTable
+from gitowl.risk import heuristic_risk, reconcile
 
 logger = get_logger(__name__)
 

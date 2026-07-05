@@ -1,11 +1,11 @@
-"""DevGuard command-line interface.
+﻿"""GitOwl command-line interface.
 
 Subcommands:
   review-diff   Review a unified diff from a file or stdin (prints Markdown).
   review-pr     Fetch a GitHub PR diff, review it, and optionally post a comment.
   providers     List available AI providers.
 
-Run `python -m devguard.cli --help` for details.
+Run `python -m gitowl.cli --help` for details.
 """
 
 from __future__ import annotations
@@ -14,22 +14,22 @@ import argparse
 import sys
 from pathlib import Path
 
-from devguard import __version__
-from devguard.ai_client.base import AIProviderError
-from devguard.ai_client.registry import available_providers
-from devguard.comment import render_comment
-from devguard.config import Config, ConfigError, load_config
-from devguard.describe import describe_diff, merge_into_body, render_description
-from devguard.logging_config import get_logger, setup_logging
-from devguard.reviewer import Review, empty_review, review_diff
+from gitowl import __version__
+from gitowl.ai_client.base import AIProviderError
+from gitowl.ai_client.registry import available_providers
+from gitowl.comment import render_comment
+from gitowl.config import Config, ConfigError, load_config
+from gitowl.describe import describe_diff, merge_into_body, render_description
+from gitowl.logging_config import get_logger, setup_logging
+from gitowl.reviewer import Review, empty_review, review_diff
 
 logger = get_logger(__name__)
 
 
 def _run_semgrep_if_available(diff_text: str, config: Config) -> list:
     """Best-effort Semgrep scan; returns [] if Semgrep isn't installed."""
-    from devguard import semgrep_runner
-    from devguard.diff_utils import parse_stats
+    from gitowl import semgrep_runner
+    from gitowl.diff_utils import parse_stats
 
     if not semgrep_runner.is_available():
         logger.info("Semgrep not installed; skipping static analysis.")
@@ -84,7 +84,7 @@ def cmd_review_diff(args: argparse.Namespace, config: Config) -> int:
 
 
 def cmd_review_pr(args: argparse.Namespace, config: Config) -> int:
-    from devguard.github_client import GitHubClient, GitHubError
+    from gitowl.github_client import GitHubClient, GitHubError
 
     if not config.github_token:
         raise ConfigError("GITHUB_TOKEN is required for review-pr.")
@@ -107,7 +107,7 @@ def cmd_review_pr(args: argparse.Namespace, config: Config) -> int:
             client.post_or_update_comment(args.repo, args.pr, body)
             print(f"Posted review to {args.repo}#{args.pr}")
             if args.suggest:
-                from devguard.suggest import build_inline_suggestions
+                from gitowl.suggest import build_inline_suggestions
 
                 suggestions = build_inline_suggestions(review.result.findings, diff_text)
                 posted = client.post_review_comments(args.repo, args.pr, suggestions)
@@ -131,7 +131,7 @@ def cmd_describe_diff(args: argparse.Namespace, config: Config) -> int:
 
 
 def cmd_describe_pr(args: argparse.Namespace, config: Config) -> int:
-    from devguard.github_client import GitHubClient, GitHubError
+    from gitowl.github_client import GitHubClient, GitHubError
 
     if not config.github_token:
         raise ConfigError("GITHUB_TOKEN is required for describe-pr.")
@@ -170,10 +170,10 @@ def cmd_providers(_args: argparse.Namespace, config: Config) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="devguard",
+        prog="gitowl",
         description="AI-assisted code review for GitHub pull requests.",
     )
-    parser.add_argument("--version", action="version", version=f"DevGuard {__version__}")
+    parser.add_argument("--version", action="version", version=f"GitOwl {__version__}")
     parser.add_argument(
         "--log-level",
         default=None,
@@ -187,7 +187,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_diff.set_defaults(func=cmd_review_diff)
 
     p_pr = sub.add_parser("review-pr", help="Review a GitHub PR by number.")
-    p_pr.add_argument("repo", help="owner/repo, e.g. MarutiDubey/DevGuard")
+    p_pr.add_argument("repo", help="owner/repo, e.g. MarutiDubey/GitOwl")
     p_pr.add_argument("pr", type=int, help="Pull request number.")
     p_pr.add_argument("--post", action="store_true", help="Post the review as a PR comment.")
     p_pr.add_argument(
@@ -203,7 +203,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_desc.set_defaults(func=cmd_describe_diff)
 
     p_desc_pr = sub.add_parser("describe-pr", help="Generate a PR description for a GitHub PR.")
-    p_desc_pr.add_argument("repo", help="owner/repo, e.g. MarutiDubey/DevGuard")
+    p_desc_pr.add_argument("repo", help="owner/repo, e.g. MarutiDubey/GitOwl")
     p_desc_pr.add_argument("pr", type=int, help="Pull request number.")
     p_desc_pr.add_argument(
         "--post", action="store_true", help="Write the description into the PR body."

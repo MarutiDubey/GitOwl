@@ -1,4 +1,4 @@
-# DevGuard runtime dependencies (pinned).
+﻿# GitOwl runtime dependencies (pinned).
 # Update with care — see CONTRIBUTING.md Section 10 (Dependency Management & Security).
 
 # HTTP client for AI providers + GitHub API

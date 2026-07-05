@@ -1,4 +1,4 @@
-"""Provider for any OpenAI-compatible chat-completions API.
+﻿"""Provider for any OpenAI-compatible chat-completions API.
 
 OpenRouter and OpenAI both speak this protocol, so they share this base and
 differ only in default base URL and required headers.
@@ -10,8 +10,8 @@ import time
 
 import httpx
 
-from devguard.ai_client.base import AIProvider, AIProviderError
-from devguard.ai_client.prompt import (
+from gitowl.ai_client.base import AIProvider, AIProviderError
+from gitowl.ai_client.prompt import (
     DESCRIBE_SYSTEM_PROMPT,
     SYSTEM_PROMPT,
     build_describe_prompt,
@@ -19,8 +19,8 @@ from devguard.ai_client.prompt import (
     parse_describe_response,
     parse_review_response,
 )
-from devguard.logging_config import get_logger
-from devguard.models import Finding, PrDescription, ReviewResult, UsageStats
+from gitowl.logging_config import get_logger
+from gitowl.models import Finding, PrDescription, ReviewResult, UsageStats
 
 logger = get_logger(__name__)
 
@@ -147,8 +147,8 @@ class OpenRouterProvider(OpenAICompatibleProvider):
     def _headers(self) -> dict[str, str]:
         headers = super()._headers()
         # Optional attribution headers recommended by OpenRouter.
-        headers["HTTP-Referer"] = "https://github.com/MarutiDubey/DevGuard"
-        headers["X-Title"] = "DevGuard"
+        headers["HTTP-Referer"] = "https://github.com/MarutiDubey/GitOwl"
+        headers["X-Title"] = "GitOwl"
         return headers
 
 

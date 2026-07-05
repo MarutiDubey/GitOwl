@@ -1,8 +1,8 @@
-"""Tests for model pricing and cost estimation."""
+﻿"""Tests for model pricing and cost estimation."""
 
 from __future__ import annotations
 
-from devguard.pricing import DEFAULT_PRICING, PricingTable, default_pricing_table
+from gitowl.pricing import DEFAULT_PRICING, PricingTable, default_pricing_table
 
 
 def test_known_model_cost_is_input_plus_output() -> None:

@@ -1,4 +1,4 @@
-"""Ollama provider — local, free, OpenAI-compatible chat endpoint.
+﻿"""Ollama provider — local, free, OpenAI-compatible chat endpoint.
 
 Ollama exposes an OpenAI-compatible API at ``/v1``, so it reuses the shared
 base and simply requires no API key.
@@ -6,7 +6,7 @@ base and simply requires no API key.
 
 from __future__ import annotations
 
-from devguard.ai_client.openai_compatible import OpenAICompatibleProvider
+from gitowl.ai_client.openai_compatible import OpenAICompatibleProvider
 
 
 class OllamaProvider(OpenAICompatibleProvider):

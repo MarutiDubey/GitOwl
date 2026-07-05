@@ -1,8 +1,8 @@
-"""Playground API: review a pasted diff with DevGuard's AI-only review path.
+﻿"""Playground API: review a pasted diff with GitOwl's AI-only review path.
 
 A Vercel Python serverless function — this module's ``app`` is the entry
 point Vercel maps to ``/api/review``. Deliberately thin: it reuses
-``devguard.reviewer.review_diff`` directly (no reimplementation of review
+``gitowl.reviewer.review_diff`` directly (no reimplementation of review
 logic) with Semgrep skipped, since pasted snippets aren't a checked-out repo
 and Semgrep isn't installed on the function host.
 """
@@ -12,9 +12,9 @@ from __future__ import annotations
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from devguard.ai_client.base import AIProviderError
-from devguard.config import ConfigError, load_config
-from devguard.reviewer import review_diff
+from gitowl.ai_client.base import AIProviderError
+from gitowl.config import ConfigError, load_config
+from gitowl.reviewer import review_diff
 
 app = FastAPI()
 

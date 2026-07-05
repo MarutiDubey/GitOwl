@@ -1,8 +1,8 @@
-# Contributing to DevGuard
+﻿# Contributing to GitOwl
 
 ## Project Overview
 
-**DevGuard** is an AI-assisted code review tool that automatically analyzes GitHub pull requests and posts review feedback as PR comments. It combines a traditional static analysis scanner (Semgrep) with an AI reasoning layer that contextualizes findings, flags risky changes, and scores overall PR risk — so human reviewers can focus their attention on what actually matters instead of reading every line manually.
+**GitOwl** is an AI-assisted code review tool that automatically analyzes GitHub pull requests and posts review feedback as PR comments. It combines a traditional static analysis scanner (Semgrep) with an AI reasoning layer that contextualizes findings, flags risky changes, and scores overall PR risk — so human reviewers can focus their attention on what actually matters instead of reading every line manually.
 
 **How it works, in short:**
 1. A GitHub Action triggers when a PR is opened or updated.
@@ -52,7 +52,7 @@ Work is built in phases. Please check which phase an issue belongs to before sta
 ### Phase 2 (Weeks 5–6): Enhanced Review Features ✅ COMPLETE
 - [x] `/describe` — auto-generated PR summary/description
 - [x] Fix suggestions (committable code suggestions, not auto-applied) — summary block + inline (`--suggest`)
-- [x] Config file support (`.devguard.toml`) for tunable severity thresholds
+- [x] Config file support (`.gitowl.toml`) for tunable severity thresholds
 - [x] Cost/latency logging per review call
 
 ### Phase 3 (Future): Dashboard & Analytics
@@ -96,11 +96,11 @@ Use lowercase, hyphen-separated, and keep it under ~50 characters.
 ```bash
 # 1. Fork the repository on GitHub (if you're an external contributor)
 # 2. Clone your fork
-git clone https://github.com/<your-username>/devguard.git
-cd devguard
+git clone https://github.com/<your-username>/gitowl.git
+cd gitowl
 
 # 3. Add the upstream remote
-git remote add upstream https://github.com/<org>/devguard.git
+git remote add upstream https://github.com/<org>/gitowl.git
 
 # 4. Verify remotes
 git remote -v
@@ -154,7 +154,7 @@ cp .env.example .env
 pytest
 
 # 7. (Optional) Run the app locally
-python -m devguard.cli --help
+python -m gitowl.cli --help
 ```
 
 ### `.env.example` reference
@@ -223,7 +223,7 @@ This is the step-by-step process for shipping a feature, end to end:
 5. **Run the full local check suite** before pushing:
    ```bash
    pre-commit run --all-files
-   pytest --cov=devguard
+   pytest --cov=gitowl
    ```
 6. **Update documentation** if you changed public behavior, config, or CLI flags.
 7. **Push your branch** and open a **draft PR** early if the work is still in progress — this invites early feedback.
@@ -279,7 +279,7 @@ Every PR triggers the following pipeline (GitHub Actions):
 3. Unit tests     → pytest with coverage report (fails if coverage drops below threshold)
 4. Security scan  → semgrep + pip-audit / npm audit
 5. Build          → package/build artifact, Docker image build (if applicable)
-6. Integration test → runs DevGuard against a small sample repo with seeded bugs, checks recall %
+6. Integration test → runs GitOwl against a small sample repo with seeded bugs, checks recall %
 ```
 
 ### Common Failing Scenarios & Fixes
@@ -287,7 +287,7 @@ Every PR triggers the following pipeline (GitHub Actions):
 | Failure | Likely Cause | Fix |
 |---|---|---|
 | `lint` fails | Formatting not applied | Run `black .` and `isort .` locally, then commit |
-| `type check` fails | Missing/incorrect type hints | Run `mypy devguard/` locally and resolve errors before pushing |
+| `type check` fails | Missing/incorrect type hints | Run `mypy gitowl/` locally and resolve errors before pushing |
 | `tests` fail | Broken logic or missing mocks (e.g., real API call in test) | Run `pytest -v` locally; ensure external calls are mocked |
 | `coverage` drops below threshold | New code has no tests | Add tests covering new branches/functions |
 | `security scan` fails | New dependency has a known CVE | Check `pip-audit` output, bump or replace the dependency |
@@ -353,7 +353,7 @@ git push --force-with-lease origin feature/your-feature-name
 
 ## 9. AI Service Configuration
 
-DevGuard's review-reasoning layer is provider-agnostic by design — it works with any capable chat-completion API, including free local models. Configure your provider of choice in `.env` via `AI_PROVIDER`.
+GitOwl's review-reasoning layer is provider-agnostic by design — it works with any capable chat-completion API, including free local models. Configure your provider of choice in `.env` via `AI_PROVIDER`.
 
 ### Default: Ollama (Local, Free)
 
@@ -383,7 +383,7 @@ AI_API_KEY=your_openai_key
 AI_MODEL=gpt-4o-mini
 ```
 
-The provider abstraction lives in `devguard/ai_client/`. Each provider implements the same `review(diff, findings) -> ReviewResult` interface, so contributors can add a new provider by implementing that interface and registering it in `ai_client/registry.py`. See `ai_client/README.md` for the interface spec before submitting a new provider integration.
+The provider abstraction lives in `gitowl/ai_client/`. Each provider implements the same `review(diff, findings) -> ReviewResult` interface, so contributors can add a new provider by implementing that interface and registering it in `ai_client/registry.py`. See `ai_client/README.md` for the interface spec before submitting a new provider integration.
 
 **Guidance:** Use Ollama for all local development and iteration (free, no rate limits to worry about). Switch to a hosted provider only for final quality validation or production deployment, where a stronger model may catch more nuanced issues.
 
@@ -526,7 +526,7 @@ labels: bug, status: triage
 
 ## Environment
 
-- DevGuard version:
+- GitOwl version:
 - AI provider in use (ollama/openai/cohere/mistral):
 - OS:
 - Python version:

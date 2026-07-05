@@ -1,4 +1,4 @@
-"""Centralised logging setup for DevGuard."""
+﻿"""Centralised logging setup for GitOwl."""
 
 from __future__ import annotations
 

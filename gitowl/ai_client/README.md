@@ -1,4 +1,4 @@
-# `devguard.ai_client` — Provider-agnostic AI layer
+﻿# `gitowl.ai_client` — Provider-agnostic AI layer
 
 Every provider implements one method:
 

@@ -1,8 +1,8 @@
-"""Deterministic mock AI provider for the eval harness.
+﻿"""Deterministic mock AI provider for the eval harness.
 
 This provider does **not** call any model. It rediscovers seeded bugs by scanning
 the diff's added lines for well-known dangerous patterns, emitting a
-:class:`~devguard.models.Finding` (with a correctly-tracked file/line) for each.
+:class:`~gitowl.models.Finding` (with a correctly-tracked file/line) for each.
 
 Why a pattern-matching mock rather than one that reads the answer key: a mock
 that echoed the expected bugs would always score 100% and validate nothing. This
@@ -18,9 +18,9 @@ from __future__ import annotations
 
 import re
 
-from devguard.ai_client.base import AIProvider
-from devguard.ai_client.registry import register_provider
-from devguard.models import Finding, FindingSource, ReviewResult, RiskLevel, Severity
+from gitowl.ai_client.base import AIProvider
+from gitowl.ai_client.registry import register_provider
+from gitowl.models import Finding, FindingSource, ReviewResult, RiskLevel, Severity
 
 #: (compiled pattern, title, message) for each bug the mock can detect.
 #: Intentionally omits subprocess(shell=True) so it stays a false negative.

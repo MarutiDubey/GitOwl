@@ -1,13 +1,13 @@
-"""Tests for the eval harness: scoring math, mock determinism, end-to-end."""
+﻿"""Tests for the eval harness: scoring math, mock determinism, end-to-end."""
 
 from __future__ import annotations
 
 import pytest
 
-from devguard.eval import CASES_DIR, load_cases, run_eval
-from devguard.eval.mock_provider import MockProvider, _scan
-from devguard.eval.scoring import EvalCase, ExpectedBug, Metrics, aggregate, match, score_case
-from devguard.models import Finding, FindingSource, Severity
+from gitowl.eval import CASES_DIR, load_cases, run_eval
+from gitowl.eval.mock_provider import MockProvider, _scan
+from gitowl.eval.scoring import EvalCase, ExpectedBug, Metrics, aggregate, match, score_case
+from gitowl.models import Finding, FindingSource, Severity
 
 
 @pytest.fixture
@@ -162,7 +162,7 @@ _EXPECTED_PER_CASE = {
 
 
 def test_run_eval_over_corpus_matches_known_baseline():
-    from devguard.eval.__main__ import _mock_config
+    from gitowl.eval.__main__ import _mock_config
 
     report = run_eval(CASES_DIR, _mock_config())
 

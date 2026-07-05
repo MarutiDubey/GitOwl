@@ -1,12 +1,12 @@
-"""Eval harness CLI: ``python -m devguard.eval``.
+﻿"""Eval harness CLI: ``python -m gitowl.eval``.
 
-Runs the seeded-bug corpus through DevGuard and reports precision/recall/F1.
+Runs the seeded-bug corpus through GitOwl and reports precision/recall/F1.
 
-  python -m devguard.eval                     # mock provider (offline, no key)
-  python -m devguard.eval --live              # real provider from .env
-  python -m devguard.eval --json              # machine-readable output
-  python -m devguard.eval --fail-under 0.9    # exit non-zero if F1 below 0.9
-  python -m devguard.eval --cases path/to/dir # custom corpus
+  python -m gitowl.eval                     # mock provider (offline, no key)
+  python -m gitowl.eval --live              # real provider from .env
+  python -m gitowl.eval --json              # machine-readable output
+  python -m gitowl.eval --fail-under 0.9    # exit non-zero if F1 below 0.9
+  python -m gitowl.eval --cases path/to/dir # custom corpus
 """
 
 from __future__ import annotations
@@ -16,10 +16,10 @@ import json
 import sys
 from pathlib import Path
 
-from devguard.config import AIConfig, Config, load_config
-from devguard.eval import CASES_DIR, run_eval
-from devguard.eval.scoring import EvalReport, Metrics
-from devguard.logging_config import get_logger, setup_logging
+from gitowl.config import AIConfig, Config, load_config
+from gitowl.eval import CASES_DIR, run_eval
+from gitowl.eval.scoring import EvalReport, Metrics
+from gitowl.logging_config import get_logger, setup_logging
 
 logger = get_logger(__name__)
 
@@ -82,7 +82,7 @@ def _report_to_json(report: EvalReport) -> dict:
 
 
 def _print_human(report: EvalReport) -> None:
-    print("DevGuard eval — seeded-bug precision/recall\n")
+    print("GitOwl eval — seeded-bug precision/recall\n")
     header = f"{'case':<22} {'TP':>3} {'FP':>3} {'FN':>3}  {'prec':>6} {'rec':>6} {'F1':>6}"
     print(header)
     print("-" * len(header))
@@ -106,8 +106,8 @@ def _print_human(report: EvalReport) -> None:
 def main(argv: list[str] | None = None) -> int:
     _force_utf8_output()
     parser = argparse.ArgumentParser(
-        prog="devguard.eval",
-        description="Score DevGuard against a seeded-bug corpus (precision/recall).",
+        prog="gitowl.eval",
+        description="Score GitOwl against a seeded-bug corpus (precision/recall).",
     )
     parser.add_argument(
         "--live",

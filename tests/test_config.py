@@ -1,4 +1,4 @@
-"""Tests for environment-driven configuration."""
+﻿"""Tests for environment-driven configuration."""
 
 from __future__ import annotations
 
@@ -6,12 +6,12 @@ from pathlib import Path
 
 import pytest
 
-from devguard.config import ConfigError, ReviewPolicy, load_config
-from devguard.models import Severity
+from gitowl.config import ConfigError, ReviewPolicy, load_config
+from gitowl.models import Severity
 
 
 def _write_toml(tmp_path: Path, body: str) -> Path:
-    path = tmp_path / ".devguard.toml"
+    path = tmp_path / ".gitowl.toml"
     path.write_text(body, encoding="utf-8")
     return path
 
@@ -25,8 +25,8 @@ def test_defaults_to_openrouter(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_missing_toml_uses_default_policy(tmp_path: Path) -> None:
-    # Point at a directory with no .devguard.toml -> defaults, no error.
-    cfg = load_config(config_path=tmp_path / ".devguard.toml")
+    # Point at a directory with no .gitowl.toml -> defaults, no error.
+    cfg = load_config(config_path=tmp_path / ".gitowl.toml")
     assert cfg.policy == ReviewPolicy()
     assert cfg.policy.min_severity is Severity.INFO
     assert cfg.policy.ignore_paths == ()
@@ -86,7 +86,7 @@ def test_pricing_override_parsed(tmp_path: Path) -> None:
 
 
 def test_missing_pricing_is_empty(tmp_path: Path) -> None:
-    cfg = load_config(config_path=tmp_path / ".devguard.toml")
+    cfg = load_config(config_path=tmp_path / ".gitowl.toml")
     assert cfg.pricing_overrides == {}
 
 
@@ -120,7 +120,7 @@ def test_numeric_settings_parsed(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_bad_int_raises(monkeypatch: pytest.MonkeyPatch) -> None:
-    from devguard.config import ConfigError
+    from gitowl.config import ConfigError
 
     monkeypatch.setenv("MAX_DIFF_LINES", "not-a-number")
     with pytest.raises(ConfigError):

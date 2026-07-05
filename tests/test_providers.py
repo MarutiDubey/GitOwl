@@ -1,4 +1,4 @@
-"""Tests for AI providers with the HTTP layer mocked — never hits a live API."""
+﻿"""Tests for AI providers with the HTTP layer mocked — never hits a live API."""
 
 from __future__ import annotations
 
@@ -8,11 +8,11 @@ from unittest.mock import MagicMock, patch
 import httpx
 import pytest
 
-from devguard.ai_client import get_provider
-from devguard.ai_client.base import AIProviderError
-from devguard.ai_client.registry import available_providers
-from devguard.config import AIConfig, ConfigError
-from devguard.models import RiskLevel
+from gitowl.ai_client import get_provider
+from gitowl.ai_client.base import AIProviderError
+from gitowl.ai_client.registry import available_providers
+from gitowl.config import AIConfig, ConfigError
+from gitowl.models import RiskLevel
 
 
 def _cfg(provider: str = "openrouter", api_key: str | None = "k") -> AIConfig:
@@ -47,7 +47,7 @@ def test_openrouter_requires_api_key() -> None:
 def test_ollama_does_not_require_api_key() -> None:
     payload = {"summary": "ok", "risk": "Low", "findings": []}
     with patch(
-        "devguard.ai_client.openai_compatible.httpx.post", return_value=_mock_response(payload)
+        "gitowl.ai_client.openai_compatible.httpx.post", return_value=_mock_response(payload)
     ):
         provider = get_provider(_cfg(provider="ollama", api_key=None))
         result = provider.review("diff", [])
@@ -61,7 +61,7 @@ def test_provider_parses_successful_response() -> None:
         "findings": [{"severity": "error", "title": "X", "message": "y"}],
     }
     with patch(
-        "devguard.ai_client.openai_compatible.httpx.post", return_value=_mock_response(payload)
+        "gitowl.ai_client.openai_compatible.httpx.post", return_value=_mock_response(payload)
     ):
         result = get_provider(_cfg()).review("diff", [])
     assert result.risk is RiskLevel.HIGH
@@ -72,7 +72,7 @@ def test_provider_captures_usage_tokens() -> None:
     payload = {"summary": "ok", "risk": "Low", "findings": []}
     usage = {"prompt_tokens": 800, "completion_tokens": 200, "total_tokens": 1000}
     with patch(
-        "devguard.ai_client.openai_compatible.httpx.post",
+        "gitowl.ai_client.openai_compatible.httpx.post",
         return_value=_mock_response(payload, usage=usage),
     ):
         result = get_provider(_cfg()).review("diff", [])
@@ -90,7 +90,7 @@ def test_provider_usage_defaults_when_absent() -> None:
     # A response with no usage block still yields a UsageStats (zeroed tokens).
     payload = {"summary": "ok", "risk": "Low", "findings": []}
     with patch(
-        "devguard.ai_client.openai_compatible.httpx.post", return_value=_mock_response(payload)
+        "gitowl.ai_client.openai_compatible.httpx.post", return_value=_mock_response(payload)
     ):
         result = get_provider(_cfg()).review("diff", [])
     assert result.usage is not None
@@ -104,7 +104,7 @@ def test_http_error_becomes_provider_error() -> None:
     exc = httpx.HTTPStatusError("401", request=MagicMock(), response=err_resp)
     failing = MagicMock()
     failing.raise_for_status.side_effect = exc
-    with patch("devguard.ai_client.openai_compatible.httpx.post", return_value=failing):
+    with patch("gitowl.ai_client.openai_compatible.httpx.post", return_value=failing):
         with pytest.raises(AIProviderError, match="401"):
             get_provider(_cfg()).review("diff", [])
 
@@ -112,7 +112,7 @@ def test_http_error_becomes_provider_error() -> None:
 def test_openrouter_sends_attribution_headers() -> None:
     payload = {"summary": "ok", "risk": "Low", "findings": []}
     with patch(
-        "devguard.ai_client.openai_compatible.httpx.post", return_value=_mock_response(payload)
+        "gitowl.ai_client.openai_compatible.httpx.post", return_value=_mock_response(payload)
     ) as post:
         get_provider(_cfg()).review("diff", [])
     headers = post.call_args.kwargs["headers"]

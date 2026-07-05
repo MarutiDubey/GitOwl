@@ -1,4 +1,4 @@
-"""Heuristic risk scoring combining diff size, files touched, and findings.
+﻿"""Heuristic risk scoring combining diff size, files touched, and findings.
 
 The AI proposes a risk level; this module computes an independent heuristic
 score so the two can be reconciled (we take the higher of the two). That guards
@@ -7,8 +7,8 @@ against a model that under-reports risk.
 
 from __future__ import annotations
 
-from devguard.diff_utils import DiffStats
-from devguard.models import Finding, RiskLevel, Severity
+from gitowl.diff_utils import DiffStats
+from gitowl.models import Finding, RiskLevel, Severity
 
 # File path fragments that tend to indicate higher-risk changes.
 _SENSITIVE_HINTS = (

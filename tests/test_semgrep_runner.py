@@ -1,4 +1,4 @@
-"""Tests for Semgrep output parsing (invocation is mocked/skipped)."""
+﻿"""Tests for Semgrep output parsing (invocation is mocked/skipped)."""
 
 from __future__ import annotations
 
@@ -6,8 +6,8 @@ import json
 
 import pytest
 
-from devguard.models import FindingSource, Severity
-from devguard.semgrep_runner import SemgrepError, parse_semgrep_json
+from gitowl.models import FindingSource, Severity
+from gitowl.semgrep_runner import SemgrepError, parse_semgrep_json
 
 
 def test_parse_semgrep_json_maps_fields() -> None:

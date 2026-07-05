@@ -1,11 +1,11 @@
-"""Provider-agnostic AI layer.
+﻿"""Provider-agnostic AI layer.
 
 Every provider implements `AIProvider.review(diff, findings) -> ReviewResult`.
 Use `get_provider(config)` (from `registry`) to obtain a configured instance.
 """
 
-from devguard.ai_client.base import AIProvider, AIProviderError
-from devguard.ai_client.registry import get_provider, register_provider
+from gitowl.ai_client.base import AIProvider, AIProviderError
+from gitowl.ai_client.registry import get_provider, register_provider
 
 __all__ = [
     "AIProvider",

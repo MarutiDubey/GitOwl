@@ -1,6 +1,6 @@
-"""Runtime configuration loaded from environment (.env) and `.devguard.toml`.
+﻿"""Runtime configuration loaded from environment (.env) and `.gitowl.toml`.
 
-Precedence, lowest to highest: built-in defaults < `.devguard.toml` (repo policy)
+Precedence, lowest to highest: built-in defaults < `.gitowl.toml` (repo policy)
 < environment variables (per-run/CI overrides). The repo file sets project-wide
 policy; a CI secret or shell export can always override it for a single run.
 """
@@ -14,13 +14,13 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from devguard.models import Severity
+from gitowl.models import Severity
 
 # Load .env once at import time. Values already set in the real environment win.
 load_dotenv(override=False)
 
 # Repo-level config file, looked up relative to the current working directory.
-CONFIG_FILENAME = ".devguard.toml"
+CONFIG_FILENAME = ".gitowl.toml"
 
 
 class ConfigError(RuntimeError):
@@ -51,7 +51,7 @@ class ReviewPolicy:
 
 @dataclass(frozen=True)
 class Config:
-    """Top-level DevGuard configuration."""
+    """Top-level GitOwl configuration."""
 
     ai: AIConfig
     github_token: str | None
@@ -74,9 +74,9 @@ def _get_int(name: str, default: int) -> int:
 
 
 def _load_toml(config_path: Path | None) -> dict:
-    """Read the `.devguard.toml` file, or return {} when it's absent.
+    """Read the `.gitowl.toml` file, or return {} when it's absent.
 
-    ``config_path`` defaults to ``./.devguard.toml``. A missing file is fine
+    ``config_path`` defaults to ``./.gitowl.toml``. A missing file is fine
     (config is optional); malformed TOML is a hard error.
     """
     path = config_path if config_path is not None else Path.cwd() / CONFIG_FILENAME
@@ -143,10 +143,10 @@ def _pricing_overrides(toml_data: dict) -> dict[str, tuple[float, float]]:
 
 
 def load_config(config_path: Path | None = None) -> Config:
-    """Build a Config from `.devguard.toml` and the environment.
+    """Build a Config from `.gitowl.toml` and the environment.
 
     Precedence (low to high): defaults < toml file < environment variables.
-    ``config_path`` overrides the default `./.devguard.toml` lookup (used by tests).
+    ``config_path`` overrides the default `./.gitowl.toml` lookup (used by tests).
     """
     toml_data = _load_toml(config_path)
     toml_ai = toml_data.get("ai", {})

@@ -1,6 +1,6 @@
-"""DevGuard eval harness.
+﻿"""GitOwl eval harness.
 
-Scores DevGuard's review output against a corpus of diffs with *known* seeded
+Scores GitOwl's review output against a corpus of diffs with *known* seeded
 bugs, reporting precision/recall/F1. Runs deterministically offline via the
 ``eval-mock`` provider by default, or against a real provider (see
 ``__main__``).
@@ -13,9 +13,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from devguard.config import Config
-from devguard.eval import mock_provider  # noqa: F401 - registers eval-mock provider
-from devguard.eval.scoring import (
+from gitowl.config import Config
+from gitowl.eval import mock_provider  # noqa: F401 - registers eval-mock provider
+from gitowl.eval.scoring import (
     CaseResult,
     EvalCase,
     EvalReport,
@@ -23,8 +23,8 @@ from devguard.eval.scoring import (
     aggregate,
     score_case,
 )
-from devguard.logging_config import get_logger
-from devguard.reviewer import review_diff
+from gitowl.logging_config import get_logger
+from gitowl.reviewer import review_diff
 
 logger = get_logger(__name__)
 

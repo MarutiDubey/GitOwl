@@ -1,4 +1,4 @@
-"""Turn findings that carry a fix into inline PR review comments.
+﻿"""Turn findings that carry a fix into inline PR review comments.
 
 The summary comment renders ```suggestion blocks that a human can copy, but
 GitHub's one-click "Commit suggestion" button only works on *inline review
@@ -11,9 +11,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from devguard.diff_utils import commentable_lines
-from devguard.logging_config import get_logger
-from devguard.models import Finding
+from gitowl.diff_utils import commentable_lines
+from gitowl.logging_config import get_logger
+from gitowl.models import Finding
 
 logger = get_logger(__name__)
 

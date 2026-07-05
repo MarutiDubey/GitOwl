@@ -3,16 +3,16 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "devguard"
+name = "gitowl"
 version = "0.1.0"
 description = "AI-assisted code review tool for GitHub pull requests."
 readme = "PROJECT_BRAIN.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
-authors = [{ name = "DevGuard maintainers" }]
+authors = [{ name = "GitOwl maintainers" }]
 
 [tool.setuptools.packages.find]
-include = ["devguard*"]
+include = ["gitowl*"]
 
 [tool.black]
 line-length = 100
@@ -36,14 +36,14 @@ warn_unused_ignores = true
 warn_redundant_casts = true
 disallow_untyped_defs = true
 ignore_missing_imports = true
-files = ["devguard"]
+files = ["gitowl"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = [
-    "integration: end-to-end tests that run DevGuard against sample data",
+    "integration: end-to-end tests that run GitOwl against sample data",
 ]
 
 [tool.coverage.run]
-source = ["devguard"]
-omit = ["devguard/__main__.py"]
+source = ["gitowl"]
+omit = ["gitowl/__main__.py"]

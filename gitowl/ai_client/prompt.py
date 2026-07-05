@@ -1,4 +1,4 @@
-"""Prompt construction and response parsing shared by AI providers.
+﻿"""Prompt construction and response parsing shared by AI providers.
 
 The model is asked to return strict JSON so we can parse it deterministically.
 """
@@ -7,10 +7,10 @@ from __future__ import annotations
 
 import json
 
-from devguard.models import Finding, FindingSource, PrDescription, ReviewResult, RiskLevel, Severity
+from gitowl.models import Finding, FindingSource, PrDescription, ReviewResult, RiskLevel, Severity
 
 SYSTEM_PROMPT = (
-    "You are DevGuard, an expert code reviewer. You are given a unified diff "
+    "You are GitOwl, an expert code reviewer. You are given a unified diff "
     "from a GitHub pull request and, optionally, findings from the Semgrep "
     "static analyser. Your job:\n"
     "  1. Filter out Semgrep findings that are false positives given the diff context.\n"
@@ -141,7 +141,7 @@ def parse_review_response(content: str, semgrep_findings: list[Finding]) -> Revi
 
 
 DESCRIBE_SYSTEM_PROMPT = (
-    "You are DevGuard. You are given a unified diff from a GitHub pull request. "
+    "You are GitOwl. You are given a unified diff from a GitHub pull request. "
     "Write a clear, concise pull-request description a reviewer can read at a "
     "glance. Describe what the change does and why — do NOT review it or flag "
     "issues.\n\n"

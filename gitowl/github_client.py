@@ -1,12 +1,12 @@
-"""Minimal GitHub REST client for fetching PR diffs and posting comments."""
+﻿"""Minimal GitHub REST client for fetching PR diffs and posting comments."""
 
 from __future__ import annotations
 
 import httpx
 
-from devguard.comment import COMMENT_MARKER
-from devguard.logging_config import get_logger
-from devguard.suggest import InlineSuggestion
+from gitowl.comment import COMMENT_MARKER
+from gitowl.logging_config import get_logger
+from gitowl.suggest import InlineSuggestion
 
 logger = get_logger(__name__)
 
@@ -19,7 +19,7 @@ class GitHubError(RuntimeError):
 
 
 class GitHubClient:
-    """Thin wrapper over the subset of the GitHub API DevGuard needs."""
+    """Thin wrapper over the subset of the GitHub API GitOwl needs."""
 
     def __init__(self, token: str, api_root: str = _API_ROOT) -> None:
         if not token:
@@ -97,7 +97,7 @@ class GitHubClient:
         return len(suggestions)
 
     def _existing_comment_id(self, repo: str, pr_number: int) -> int | None:
-        """Find DevGuard's previous comment on this PR, if any."""
+        """Find GitOwl's previous comment on this PR, if any."""
         url = f"{self._api_root}/repos/{repo}/issues/{pr_number}/comments"
         try:
             resp = httpx.get(url, headers=self._headers(), timeout=_TIMEOUT)
@@ -111,7 +111,7 @@ class GitHubClient:
         return None
 
     def post_or_update_comment(self, repo: str, pr_number: int, body: str) -> None:
-        """Post a new review comment, or update DevGuard's existing one."""
+        """Post a new review comment, or update GitOwl's existing one."""
         existing = self._existing_comment_id(repo, pr_number)
         try:
             if existing is not None:
@@ -127,4 +127,4 @@ class GitHubClient:
             resp.raise_for_status()
         except httpx.HTTPError as exc:
             raise GitHubError(f"failed to post PR comment: {exc}") from exc
-        logger.info("Posted DevGuard review to %s#%d", repo, pr_number)
+        logger.info("Posted GitOwl review to %s#%d", repo, pr_number)

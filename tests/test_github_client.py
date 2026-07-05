@@ -1,4 +1,4 @@
-"""Tests for the GitHub REST client with the HTTP layer mocked — never hits live GitHub."""
+﻿"""Tests for the GitHub REST client with the HTTP layer mocked — never hits live GitHub."""
 
 from __future__ import annotations
 
@@ -7,8 +7,8 @@ from unittest.mock import MagicMock, patch
 import httpx
 import pytest
 
-from devguard.comment import COMMENT_MARKER
-from devguard.github_client import GitHubClient, GitHubError
+from gitowl.comment import COMMENT_MARKER
+from gitowl.github_client import GitHubClient, GitHubError
 
 
 def _ok_response(*, text: str = "", json_body: object = None) -> MagicMock:
@@ -44,7 +44,7 @@ def test_headers_carry_bearer_token_and_api_version() -> None:
 
 def test_fetch_pr_diff_returns_text_and_requests_diff_media_type() -> None:
     client = GitHubClient("t")
-    with patch("devguard.github_client.httpx.get", return_value=_ok_response(text="DIFF")) as get:
+    with patch("gitowl.github_client.httpx.get", return_value=_ok_response(text="DIFF")) as get:
         assert client.fetch_pr_diff("owner/repo", 7) == "DIFF"
     url = get.call_args.args[0]
     accept = get.call_args.kwargs["headers"]["Accept"]
@@ -54,7 +54,7 @@ def test_fetch_pr_diff_returns_text_and_requests_diff_media_type() -> None:
 
 def test_fetch_pr_diff_wraps_http_errors() -> None:
     client = GitHubClient("t")
-    with patch("devguard.github_client.httpx.get", return_value=_failing_response()):
+    with patch("gitowl.github_client.httpx.get", return_value=_failing_response()):
         with pytest.raises(GitHubError, match="failed to fetch PR diff"):
             client.fetch_pr_diff("owner/repo", 7)
 
@@ -62,9 +62,9 @@ def test_fetch_pr_diff_wraps_http_errors() -> None:
 def test_post_creates_new_comment_when_none_exists() -> None:
     client = GitHubClient("t")
     with (
-        patch("devguard.github_client.httpx.get", return_value=_ok_response(json_body=[])),
-        patch("devguard.github_client.httpx.post", return_value=_ok_response()) as post,
-        patch("devguard.github_client.httpx.patch") as patch_call,
+        patch("gitowl.github_client.httpx.get", return_value=_ok_response(json_body=[])),
+        patch("gitowl.github_client.httpx.post", return_value=_ok_response()) as post,
+        patch("gitowl.github_client.httpx.patch") as patch_call,
     ):
         client.post_or_update_comment("owner/repo", 3, "hello")
     assert post.called
@@ -72,13 +72,13 @@ def test_post_creates_new_comment_when_none_exists() -> None:
     assert post.call_args.args[0].endswith("/repos/owner/repo/issues/3/comments")
 
 
-def test_post_updates_existing_devguard_comment() -> None:
+def test_post_updates_existing_gitowl_comment() -> None:
     client = GitHubClient("t")
     existing = [{"id": 42, "body": f"stale {COMMENT_MARKER}"}]
     with (
-        patch("devguard.github_client.httpx.get", return_value=_ok_response(json_body=existing)),
-        patch("devguard.github_client.httpx.post") as post,
-        patch("devguard.github_client.httpx.patch", return_value=_ok_response()) as patch_call,
+        patch("gitowl.github_client.httpx.get", return_value=_ok_response(json_body=existing)),
+        patch("gitowl.github_client.httpx.post") as post,
+        patch("gitowl.github_client.httpx.patch", return_value=_ok_response()) as patch_call,
     ):
         client.post_or_update_comment("owner/repo", 3, "fresh")
     assert patch_call.called
@@ -90,9 +90,9 @@ def test_post_falls_back_to_create_when_listing_comments_fails() -> None:
     """A failed comment-list is non-fatal: we log and post a fresh comment."""
     client = GitHubClient("t")
     with (
-        patch("devguard.github_client.httpx.get", return_value=_failing_response()),
-        patch("devguard.github_client.httpx.post", return_value=_ok_response()) as post,
-        patch("devguard.github_client.httpx.patch") as patch_call,
+        patch("gitowl.github_client.httpx.get", return_value=_failing_response()),
+        patch("gitowl.github_client.httpx.post", return_value=_ok_response()) as post,
+        patch("gitowl.github_client.httpx.patch") as patch_call,
     ):
         client.post_or_update_comment("owner/repo", 3, "hello")
     assert post.called
@@ -102,8 +102,8 @@ def test_post_falls_back_to_create_when_listing_comments_fails() -> None:
 def test_post_wraps_http_errors() -> None:
     client = GitHubClient("t")
     with (
-        patch("devguard.github_client.httpx.get", return_value=_ok_response(json_body=[])),
-        patch("devguard.github_client.httpx.post", return_value=_failing_response()),
+        patch("gitowl.github_client.httpx.get", return_value=_ok_response(json_body=[])),
+        patch("gitowl.github_client.httpx.post", return_value=_failing_response()),
     ):
         with pytest.raises(GitHubError, match="failed to post PR comment"):
             client.post_or_update_comment("owner/repo", 3, "hello")
@@ -112,7 +112,7 @@ def test_post_wraps_http_errors() -> None:
 def test_fetch_pr_body_returns_body_string() -> None:
     client = GitHubClient("t")
     with patch(
-        "devguard.github_client.httpx.get",
+        "gitowl.github_client.httpx.get",
         return_value=_ok_response(json_body={"body": "hello"}),
     ) as get:
         assert client.fetch_pr_body("owner/repo", 7) == "hello"
@@ -122,14 +122,14 @@ def test_fetch_pr_body_returns_body_string() -> None:
 def test_fetch_pr_body_null_becomes_empty_string() -> None:
     client = GitHubClient("t")
     with patch(
-        "devguard.github_client.httpx.get", return_value=_ok_response(json_body={"body": None})
+        "gitowl.github_client.httpx.get", return_value=_ok_response(json_body={"body": None})
     ):
         assert client.fetch_pr_body("owner/repo", 7) == ""
 
 
 def test_update_pr_body_patches_pull() -> None:
     client = GitHubClient("t")
-    with patch("devguard.github_client.httpx.patch", return_value=_ok_response()) as patch_call:
+    with patch("gitowl.github_client.httpx.patch", return_value=_ok_response()) as patch_call:
         client.update_pr_body("owner/repo", 7, "new body")
     assert patch_call.call_args.args[0].endswith("/repos/owner/repo/pulls/7")
     assert patch_call.call_args.kwargs["json"] == {"body": "new body"}
@@ -137,20 +137,20 @@ def test_update_pr_body_patches_pull() -> None:
 
 def test_update_pr_body_wraps_http_errors() -> None:
     client = GitHubClient("t")
-    with patch("devguard.github_client.httpx.patch", return_value=_failing_response()):
+    with patch("gitowl.github_client.httpx.patch", return_value=_failing_response()):
         with pytest.raises(GitHubError, match="failed to update PR body"):
             client.update_pr_body("owner/repo", 7, "x")
 
 
 def test_post_review_comments_sends_review_with_suggestions() -> None:
-    from devguard.suggest import InlineSuggestion
+    from gitowl.suggest import InlineSuggestion
 
     client = GitHubClient("t")
     suggestions = [
         InlineSuggestion(path="app.py", line=3, body="```suggestion\nx\n```"),
         InlineSuggestion(path="util.py", line=1, body="```suggestion\ny\n```"),
     ]
-    with patch("devguard.github_client.httpx.post", return_value=_ok_response()) as post:
+    with patch("gitowl.github_client.httpx.post", return_value=_ok_response()) as post:
         assert client.post_review_comments("owner/repo", 5, suggestions) == 2
     url = post.call_args.args[0]
     body = post.call_args.kwargs["json"]
@@ -166,28 +166,28 @@ def test_post_review_comments_sends_review_with_suggestions() -> None:
 
 def test_post_review_comments_empty_is_noop() -> None:
     client = GitHubClient("t")
-    with patch("devguard.github_client.httpx.post") as post:
+    with patch("gitowl.github_client.httpx.post") as post:
         assert client.post_review_comments("owner/repo", 5, []) == 0
     post.assert_not_called()
 
 
 def test_post_review_comments_wraps_http_errors() -> None:
-    from devguard.suggest import InlineSuggestion
+    from gitowl.suggest import InlineSuggestion
 
     client = GitHubClient("t")
     suggestions = [InlineSuggestion(path="app.py", line=3, body="x")]
-    with patch("devguard.github_client.httpx.post", return_value=_failing_response()):
+    with patch("gitowl.github_client.httpx.post", return_value=_failing_response()):
         with pytest.raises(GitHubError, match="failed to post review suggestions"):
             client.post_review_comments("owner/repo", 5, suggestions)
 
 
-def test_existing_comment_ignores_non_devguard_comments() -> None:
+def test_existing_comment_ignores_non_gitowl_comments() -> None:
     client = GitHubClient("t")
     unrelated = [{"id": 1, "body": "just a normal review"}]
     with (
-        patch("devguard.github_client.httpx.get", return_value=_ok_response(json_body=unrelated)),
-        patch("devguard.github_client.httpx.post", return_value=_ok_response()) as post,
-        patch("devguard.github_client.httpx.patch") as patch_call,
+        patch("gitowl.github_client.httpx.get", return_value=_ok_response(json_body=unrelated)),
+        patch("gitowl.github_client.httpx.post", return_value=_ok_response()) as post,
+        patch("gitowl.github_client.httpx.patch") as patch_call,
     ):
         client.post_or_update_comment("owner/repo", 3, "hello")
     assert post.called

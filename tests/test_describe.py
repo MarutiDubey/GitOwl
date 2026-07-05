@@ -1,4 +1,4 @@
-"""Tests for the PR-description feature (prompt parse, render, body merge)."""
+﻿"""Tests for the PR-description feature (prompt parse, render, body merge)."""
 
 from __future__ import annotations
 
@@ -7,18 +7,18 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from devguard.ai_client import get_provider
-from devguard.ai_client.base import AIProviderError
-from devguard.ai_client.prompt import parse_describe_response
-from devguard.config import AIConfig
-from devguard.describe import (
+from gitowl.ai_client import get_provider
+from gitowl.ai_client.base import AIProviderError
+from gitowl.ai_client.prompt import parse_describe_response
+from gitowl.config import AIConfig
+from gitowl.describe import (
     DESCRIBE_BEGIN,
     DESCRIBE_END,
     describe_diff,
     merge_into_body,
     render_description,
 )
-from devguard.models import PrDescription
+from gitowl.models import PrDescription
 
 
 def _cfg(provider: str = "openrouter", api_key: str | None = "k") -> AIConfig:
@@ -106,7 +106,7 @@ def test_merge_replaces_previous_block_in_place() -> None:
 def test_provider_describe_parses_response() -> None:
     payload = {"title": "T", "summary": "S", "changes": ["x"]}
     with patch(
-        "devguard.ai_client.openai_compatible.httpx.post", return_value=_mock_response(payload)
+        "gitowl.ai_client.openai_compatible.httpx.post", return_value=_mock_response(payload)
     ):
         desc = get_provider(_cfg()).describe("diff")
     assert desc.title == "T"
@@ -124,7 +124,7 @@ def test_describe_requires_api_key() -> None:
 def test_describe_diff_delegates_to_provider(config) -> None:
     provider = MagicMock()
     provider.describe.return_value = PrDescription(title="T", summary="S", changes=[])
-    with patch("devguard.describe.get_provider", return_value=provider):
+    with patch("gitowl.describe.get_provider", return_value=provider):
         desc = describe_diff("some diff", config)
     provider.describe.assert_called_once_with("some diff")
     assert desc.title == "T"

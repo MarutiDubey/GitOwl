@@ -1,4 +1,4 @@
-"""Run Semgrep and normalise its output into DevGuard ``Finding`` objects."""
+﻿"""Run Semgrep and normalise its output into GitOwl ``Finding`` objects."""
 
 from __future__ import annotations
 
@@ -8,8 +8,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from devguard.logging_config import get_logger
-from devguard.models import Finding, FindingSource, Severity
+from gitowl.logging_config import get_logger
+from gitowl.models import Finding, FindingSource, Severity
 
 logger = get_logger(__name__)
 

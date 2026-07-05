@@ -1,8 +1,8 @@
-# 🛡️ DevGuard
+﻿# 🛡️ GitOwl
 
 **AI-assisted code review for GitHub pull requests.**
 
-DevGuard combines a traditional static analyser (Semgrep) with an AI reasoning
+GitOwl combines a traditional static analyser (Semgrep) with an AI reasoning
 layer that contextualises findings, filters false positives, flags risky
 changes, and scores overall PR risk — so human reviewers focus on what matters.
 
@@ -31,28 +31,28 @@ cp .env.example .env              # then edit .env with your provider + key
 
 ```bash
 # From a saved diff
-python -m devguard.cli review-diff my.diff
+python -m gitowl.cli review-diff my.diff
 
 # From git, piped in
-git diff main...HEAD | python -m devguard.cli review-diff -
+git diff main...HEAD | python -m gitowl.cli review-diff -
 
 # Skip static analysis (AI only)
-python -m devguard.cli review-diff my.diff --no-semgrep
+python -m gitowl.cli review-diff my.diff --no-semgrep
 ```
 
 ### Review a GitHub PR
 
 ```bash
 # Print the review
-python -m devguard.cli review-pr MarutiDubey/DevGuard 42
+python -m gitowl.cli review-pr MarutiDubey/GitOwl 42
 
 # Post/update the review as a PR comment
-python -m devguard.cli review-pr MarutiDubey/DevGuard 42 --post
+python -m gitowl.cli review-pr MarutiDubey/GitOwl 42 --post
 
 # ...and post committable fixes as inline suggestions (GitHub's one-click
 # "Commit suggestion" button). Only findings whose fix lands on a changed
 # line are posted; the rest stay in the summary comment.
-python -m devguard.cli review-pr MarutiDubey/DevGuard 42 --post --suggest
+python -m gitowl.cli review-pr MarutiDubey/GitOwl 42 --post --suggest
 ```
 
 ### Describe a PR (auto-generated description)
@@ -61,30 +61,30 @@ Generate a clear PR description (title + summary + change list) from a diff:
 
 ```bash
 # From a diff (file or stdin) — prints the description
-python -m devguard.cli describe-diff my.diff
-git diff main...HEAD | python -m devguard.cli describe-diff -
+python -m gitowl.cli describe-diff my.diff
+git diff main...HEAD | python -m gitowl.cli describe-diff -
 
 # From a GitHub PR — print it
-python -m devguard.cli describe-pr MarutiDubey/DevGuard 42
+python -m gitowl.cli describe-pr MarutiDubey/GitOwl 42
 
-# ...or write it into the PR body (between DevGuard markers, preserving your text)
-python -m devguard.cli describe-pr MarutiDubey/DevGuard 42 --post
+# ...or write it into the PR body (between GitOwl markers, preserving your text)
+python -m gitowl.cli describe-pr MarutiDubey/GitOwl 42 --post
 ```
 
-`--post` only replaces DevGuard's own marked section, so any description you
+`--post` only replaces GitOwl's own marked section, so any description you
 wrote by hand stays intact.
 
 ### List AI providers
 
 ```bash
-python -m devguard.cli providers
+python -m gitowl.cli providers
 ```
 
 ---
 
 ## AI providers
 
-DevGuard is provider-agnostic. Set `AI_PROVIDER` in `.env`:
+GitOwl is provider-agnostic. Set `AI_PROVIDER` in `.env`:
 
 | `AI_PROVIDER` | Notes |
 |---|---|
@@ -92,15 +92,15 @@ DevGuard is provider-agnostic. Set `AI_PROVIDER` in `.env`:
 | `openai` | Direct OpenAI API. Set `AI_API_KEY`. |
 | `ollama` | Local, free, offline. Run `ollama serve` first — no key needed. |
 
-See [`devguard/ai_client/README.md`](devguard/ai_client/README.md) to add a provider.
+See [`gitowl/ai_client/README.md`](gitowl/ai_client/README.md) to add a provider.
 
 > ⚠️ **Never commit your `.env` or API keys.** `.env` is git-ignored by default.
 
 ---
 
-## Configuration (`.devguard.toml`)
+## Configuration (`.gitowl.toml`)
 
-Drop a `.devguard.toml` file at your repo root to set project-wide review policy.
+Drop a `.gitowl.toml` file at your repo root to set project-wide review policy.
 It's committed to the repo, so the whole team shares the same rules.
 
 ```toml
@@ -109,7 +109,7 @@ It's committed to the repo, so the whole team shares the same rules.
 # Default "info" reports everything.
 min_severity = "warning"
 
-# Glob patterns for files DevGuard should not report findings on.
+# Glob patterns for files GitOwl should not report findings on.
 # Matches nested paths (e.g. "*.md" also matches "docs/x.md").
 ignore_paths = ["tests/**", "**/*.md", "vendor/**"]
 
@@ -119,16 +119,16 @@ model = "openai/gpt-4o-mini"
 
 [pricing]
 # Optional: override or add model prices, as [input, output] USD per 1M tokens.
-# DevGuard ships prices for common models; add your own for anything else.
+# GitOwl ships prices for common models; add your own for anything else.
 "my-org/private-model" = [2.0, 8.0]
 ```
 
-**Precedence** (lowest to highest): built-in defaults → `.devguard.toml` →
+**Precedence** (lowest to highest): built-in defaults → `.gitowl.toml` →
 environment variables. So the repo file sets the baseline, and a CI secret or a
 shell `export` can always override it for a single run. **API keys are never read
 from this file** — they stay in `.env` / environment only.
 
-Everything is optional; with no file present, DevGuard behaves exactly as before
+Everything is optional; with no file present, GitOwl behaves exactly as before
 (reports every finding, ignores nothing).
 
 ### Cost & latency
@@ -136,7 +136,7 @@ Everything is optional; with no file present, DevGuard behaves exactly as before
 Each review call's token usage, estimated cost, and latency are logged and shown
 in a small footer line on the PR comment, e.g.:
 
-> _Generated by DevGuard · openai/gpt-4o-mini · 1,560 tok · ~$0.0004 · 1,834ms_
+> _Generated by GitOwl · openai/gpt-4o-mini · 1,560 tok · ~$0.0004 · 1,834ms_
 
 Cost is estimated from the built-in price table plus any `[pricing]` overrides;
 an unpriced model shows `cost unknown` rather than a wrong number.
@@ -161,7 +161,7 @@ inline, one-click-committable review comments is a planned follow-up.)
 
 ## GitHub Action
 
-`.github/workflows/devguard-review.yml` runs DevGuard on every PR
+`.github/workflows/gitowl-review.yml` runs GitOwl on every PR
 (`opened` / `synchronize` / `reopened`) and posts a review comment.
 
 Configure in your repo settings:
@@ -174,14 +174,14 @@ Configure in your repo settings:
 
 ## Eval harness
 
-Measure DevGuard's review quality against a corpus of diffs with **known** seeded
+Measure GitOwl's review quality against a corpus of diffs with **known** seeded
 bugs — precision / recall / F1. Runs offline and deterministically by default.
 
 ```bash
-python -m devguard.eval                  # mock provider (offline, no key)
-python -m devguard.eval --live           # score the real provider from .env
-python -m devguard.eval --json           # machine-readable output
-python -m devguard.eval --fail-under 0.9 # exit non-zero if aggregate F1 < 0.9
+python -m gitowl.eval                  # mock provider (offline, no key)
+python -m gitowl.eval --live           # score the real provider from .env
+python -m gitowl.eval --json           # machine-readable output
+python -m gitowl.eval --fail-under 0.9 # exit non-zero if aggregate F1 < 0.9
 ```
 
 The corpus ships **12 cases** (weak hash, `eval`, hardcoded secret, SQL injection
@@ -189,16 +189,16 @@ incl. f-string, unsafe `pickle`, a multi-bug diff, plus benign/clean cases and a
 few categories the offline mock intentionally can't catch). The mock baseline is
 **precision 1.00 / recall 0.73 / F1 0.84** — deliberately below 1.0 so the
 scoring math is genuinely exercised (a real provider via `--live` should do
-better). Cases live in [`devguard/eval/cases/`](devguard/eval/cases/) as
+better). Cases live in [`gitowl/eval/cases/`](gitowl/eval/cases/) as
 `<name>.diff` + `<name>.expected.json` pairs — add your own to grow the corpus.
 
 ## Development
 
 ```bash
-pytest --cov=devguard          # tests
-ruff check devguard tests      # lint
+pytest --cov=gitowl          # tests
+ruff check gitowl tests      # lint
 black . && isort .             # format
-mypy devguard                  # types
+mypy gitowl                  # types
 pre-commit run --all-files     # all hooks
 ```
 

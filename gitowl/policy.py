@@ -1,4 +1,4 @@
-"""Apply the repo review policy (severity threshold + ignore paths) to findings.
+﻿"""Apply the repo review policy (severity threshold + ignore paths) to findings.
 
 Pure functions, no I/O — the reviewer calls :func:`apply_policy` after the AI
 returns its findings but *before* risk scoring, so ignored/low-severity findings
@@ -9,9 +9,9 @@ from __future__ import annotations
 
 from fnmatch import fnmatch
 
-from devguard.config import ReviewPolicy
-from devguard.logging_config import get_logger
-from devguard.models import Finding, Severity
+from gitowl.config import ReviewPolicy
+from gitowl.logging_config import get_logger
+from gitowl.models import Finding, Severity
 
 logger = get_logger(__name__)
 

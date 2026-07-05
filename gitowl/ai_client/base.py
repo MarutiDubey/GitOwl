@@ -1,11 +1,11 @@
-"""Base interface every AI provider must implement."""
+﻿"""Base interface every AI provider must implement."""
 
 from __future__ import annotations
 
 import abc
 
-from devguard.config import AIConfig
-from devguard.models import Finding, PrDescription, ReviewResult
+from gitowl.config import AIConfig
+from gitowl.models import Finding, PrDescription, ReviewResult
 
 
 class AIProviderError(RuntimeError):
@@ -16,7 +16,7 @@ class AIProvider(abc.ABC):
     """Contract for the review-reasoning layer.
 
     Implementations translate a diff + static-analysis findings into a
-    structured :class:`~devguard.models.ReviewResult`.
+    structured :class:`~gitowl.models.ReviewResult`.
     """
 
     #: Registry key, e.g. "openrouter". Set on each subclass.

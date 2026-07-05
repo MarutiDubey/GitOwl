@@ -1,14 +1,14 @@
-# DevGuard Playground
+﻿# GitOwl Playground
 
-A public landing page + live demo: paste a unified diff, get DevGuard's real
-AI-powered risk score and findings back — the same review engine DevGuard
+A public landing page + live demo: paste a unified diff, get GitOwl's real
+AI-powered risk score and findings back — the same review engine GitOwl
 posts as a PR comment, running here on a pasted snippet instead.
 
 Deployed as a single Vercel project: the React frontend is served as a static
 build, and `/api/review` is a Vercel Python serverless function that calls
-`devguard.reviewer.review_diff` directly. Semgrep is skipped here — pasted
+`gitowl.reviewer.review_diff` directly. Semgrep is skipped here — pasted
 snippets aren't a checked-out repo, and the function host doesn't have it
-installed — so this is the AI-only review path (same as `devguard review-diff
+installed — so this is the AI-only review path (same as `gitowl review-diff
 --no-semgrep`).
 
 No database, no stored review history — every request is stateless.
@@ -17,7 +17,7 @@ No database, no stored review history — every request is stateless.
 
 ### API
 
-From the **repo root** (so the `devguard` package resolves):
+From the **repo root** (so the `gitowl` package resolves):
 
 ```bash
 pip install -r playground/api/requirements.txt

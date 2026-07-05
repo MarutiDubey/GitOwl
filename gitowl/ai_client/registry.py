@@ -1,15 +1,15 @@
-"""Provider registry — maps ``AI_PROVIDER`` values to provider classes.
+﻿"""Provider registry — maps ``AI_PROVIDER`` values to provider classes.
 
-To add a provider: implement :class:`~devguard.ai_client.base.AIProvider` and
+To add a provider: implement :class:`~gitowl.ai_client.base.AIProvider` and
 call :func:`register_provider`, or add it to ``_BUILTIN`` below.
 """
 
 from __future__ import annotations
 
-from devguard.ai_client.base import AIProvider
-from devguard.ai_client.ollama import OllamaProvider
-from devguard.ai_client.openai_compatible import OpenAIProvider, OpenRouterProvider
-from devguard.config import AIConfig, ConfigError
+from gitowl.ai_client.base import AIProvider
+from gitowl.ai_client.ollama import OllamaProvider
+from gitowl.ai_client.openai_compatible import OpenAIProvider, OpenRouterProvider
+from gitowl.config import AIConfig, ConfigError
 
 _REGISTRY: dict[str, type[AIProvider]] = {}
 
