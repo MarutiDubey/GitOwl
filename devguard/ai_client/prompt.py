@@ -89,7 +89,7 @@ def _clean_suggestion(value: object) -> str | None:
     if not isinstance(value, str):
         return None
     text = value.strip()
-    if not text:
+    if not text or text.lower() in ("null", "none"):
         return None
     if text.startswith("```"):
         lines = text.splitlines()

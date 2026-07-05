@@ -133,6 +133,23 @@ def test_parse_null_or_missing_suggestion_is_none() -> None:
     assert all(f.suggestion is None for f in result.findings)
 
 
+def test_parse_literal_null_string_suggestion_is_none() -> None:
+    # Some models emit the JSON string "null" instead of the null literal.
+    content = json.dumps(
+        {
+            "summary": "s",
+            "risk": "Low",
+            "findings": [
+                {"severity": "info", "title": "a", "message": "m", "suggestion": "null"},
+                {"severity": "info", "title": "b", "message": "m", "suggestion": "None"},
+                {"severity": "info", "title": "c", "message": "m", "suggestion": "  NULL  "},
+            ],
+        }
+    )
+    result = parse_review_response(content, [])
+    assert all(f.suggestion is None for f in result.findings)
+
+
 def test_system_prompt_documents_suggestion() -> None:
     from devguard.ai_client.prompt import SYSTEM_PROMPT
 
