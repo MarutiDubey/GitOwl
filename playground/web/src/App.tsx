@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { DiffInput } from "./components/DiffInput";
 import { ReviewOutput } from "./components/ReviewOutput";
@@ -7,11 +7,11 @@ import { Screenshot } from "./components/Screenshot";
 import { Features } from "./components/Features";
 import { Setup } from "./components/Setup";
 import { reviewDiff, ReviewApiError, EXAMPLE_DIFF, type ReviewResponse } from "./api";
+import { initFloatingCursor } from "./floatingCursor";
 
 const REPO_URL = "https://github.com/MarutiDubey/GitOwl";
 
-// WebGL orb — lazy so it never blocks first paint; degrades to nothing if it
-// fails to load or WebGL is unavailable.
+// WebGL orb — lazy so it never blocks first paint.
 const Orb = lazy(() => import("./components/Orb"));
 
 // Stagger children in on load.
@@ -29,6 +29,20 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ReviewResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Custom floating cursor — only on non-touch devices.
+  useEffect(() => {
+    const isTouch = window.matchMedia("(pointer: coarse)").matches;
+    if (isTouch) return;
+    const cursor = initFloatingCursor({
+      size: 38,
+      color: "rgba(99,160,255,0.9)",
+      borderWidth: 1.5,
+      ease: 0.16,
+      hoverScale: 1.5,
+    });
+    return () => cursor.destroy();
+  }, []);
 
   async function handleReview() {
     setLoading(true);
@@ -79,78 +93,83 @@ function App() {
         </a>
       </header>
 
-      <div className="hero">
-        <div className="hero-orb" aria-hidden="true">
+      {/* ── Hero — full-bleed, orb is NOW interactive foreground ── */}
+      <section className="hero">
+        {/* Orb: pointer-events on, high hoverIntensity so it reacts */}
+        <div className="hero-orb">
           <Suspense fallback={null}>
-            <Orb hue={230} hoverIntensity={0.3} backgroundColor="#0d1117" />
+            <Orb hue={230} hoverIntensity={0.6} backgroundColor="transparent" />
           </Suspense>
         </div>
         <motion.div className="hero-content" variants={container} initial="hidden" animate="show">
-          <motion.span className="badge" variants={item}>
-            AI-assisted code review
-          </motion.span>
-          <motion.h1 variants={item}>
-            Smarter PR reviews,
-            <br />
-            on autopilot.
-          </motion.h1>
-          <motion.p className="tagline" variants={item}>
-            GitOwl reviews every pull request with AI — flagging bugs, security risks, and scoring
-            overall risk, then posting it as a comment. Add it to any repo in 3 steps.
-          </motion.p>
-          <motion.div className="hero-actions" variants={item}>
-            <a className="btn-primary" href={REPO_URL} target="_blank" rel="noreferrer">
-              Add to your repo
-            </a>
-            <button onClick={handleExample} className="secondary">
-              Try the live demo ↓
-            </button>
-          </motion.div>
+          <div className="hero-inner">
+            <motion.span className="badge" variants={item}>
+              AI-assisted code review
+            </motion.span>
+            <motion.h1 variants={item}>
+              Smarter PR reviews,
+              <br />
+              on autopilot.
+            </motion.h1>
+            <motion.p className="tagline" variants={item}>
+              GitOwl reviews every pull request with AI — flagging bugs, security risks, and scoring
+              overall risk, then posting it as a comment. Add it to any repo in 3 steps.
+            </motion.p>
+            <motion.div className="hero-actions" variants={item}>
+              <a className="btn-primary" href={REPO_URL} target="_blank" rel="noreferrer">
+                Add to your repo
+              </a>
+              <button onClick={handleExample} className="secondary">
+                Try the live demo ↓
+              </button>
+            </motion.div>
+          </div>
         </motion.div>
+      </section>
+
+      <div className="page-content">
+        <Reveal>
+          <HowItWorks />
+        </Reveal>
+
+        <Reveal>
+          <Screenshot />
+        </Reveal>
+
+        <Reveal>
+          <section className="try">
+            <h2>Try it live</h2>
+            <p className="try-sub">
+              Pick an example or paste a diff — see a real GitOwl review right here. No signup,
+              nothing stored.
+            </p>
+            <DiffInput diff={diff} onChange={setDiff} onSubmit={handleReview} loading={loading} />
+            {error && <div className="error-box">{error}</div>}
+            {result && <ReviewOutput result={result} />}
+          </section>
+        </Reveal>
+
+        <Reveal>
+          <Features />
+        </Reveal>
+
+        <Reveal>
+          <Setup />
+        </Reveal>
+
+        <footer>
+          Diffs are sent to an AI provider for review and are not stored. Static analysis (Semgrep)
+          is skipped in this playground — only the AI review layer runs.{" "}
+          <a href={REPO_URL} target="_blank" rel="noreferrer">
+            View source on GitHub
+          </a>
+        </footer>
       </div>
-
-      <Reveal>
-        <HowItWorks />
-      </Reveal>
-
-      <Reveal>
-        <Screenshot />
-      </Reveal>
-
-      <Reveal>
-        <section className="try">
-          <h2>Try it live</h2>
-          <p className="try-sub">
-            Pick an example or paste a diff — see a real GitOwl review right here. No signup,
-            nothing stored.
-          </p>
-          <DiffInput diff={diff} onChange={setDiff} onSubmit={handleReview} loading={loading} />
-          {error && <div className="error-box">{error}</div>}
-          {result && <ReviewOutput result={result} />}
-        </section>
-      </Reveal>
-
-      <Reveal>
-        <Features />
-      </Reveal>
-
-      <Reveal>
-        <Setup />
-      </Reveal>
-
-      <footer>
-        Diffs are sent to an AI provider for review and are not stored. Static analysis (Semgrep) is
-        skipped in this playground — only the AI review layer runs.{" "}
-        <a href={REPO_URL} target="_blank" rel="noreferrer">
-          View source on GitHub
-        </a>
-      </footer>
     </>
   );
 }
 
-// Fade + rise a section into view once. Motion honors prefers-reduced-motion,
-// so reduced-motion users get the content without the transform.
+// Fade + rise a section into view once.
 function Reveal({ children }: { children: React.ReactNode }) {
   return (
     <motion.div

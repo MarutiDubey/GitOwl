@@ -61,6 +61,50 @@
 
 body {
   margin: 0;
+  overflow-x: hidden;
+}
+
+/* ── Floating cursor ── */
+.floating-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: var(--fc-size, 36px);
+  height: var(--fc-size, 36px);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate3d(-50%, -50%, 0);
+  z-index: var(--fc-z, 9999);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+}
+.floating-cursor .fc-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  box-sizing: border-box;
+  border: var(--fc-border, 1.5px) solid var(--fc-color, rgba(99,160,255,0.85));
+  transition: transform 160ms cubic-bezier(.2,.8,.2,1), opacity 160ms;
+}
+.floating-cursor .fc-dot {
+  width: 30%;
+  height: 30%;
+  background: var(--fc-color, rgba(99,160,255,0.85));
+  border-radius: 50%;
+  transition: transform 160ms;
+}
+.floating-cursor.fc-hidden { opacity: 0; }
+.floating-cursor.fc-hover .fc-ring {
+  transform: scale(var(--fc-hover-scale, 1.4));
+  opacity: 0.9;
+}
+.floating-cursor.fc-hover .fc-dot { transform: scale(0.5); }
+.floating-cursor.fc-pressed {
+  transform: translate3d(-50%, -50%, 0) scale(var(--fc-click-scale, 0.85));
+  transition: transform 80ms;
 }
 
 /* ── Header ── */
@@ -116,11 +160,17 @@ body {
   background: var(--accent-bg);
 }
 
-/* ── Main content ── */
+/* ── Layout ── */
 #root {
-  max-width: 860px;
+  width: 100%;
+  /* no max-width — full bleed */
+}
+
+/* Readable text sections get a max-width container */
+.page-content {
+  max-width: 900px;
   margin: 0 auto;
-  padding: 56px 24px 96px;
+  padding: 0 24px 96px;
 }
 
 h1,
@@ -161,34 +211,56 @@ a {
 
 .hero {
   position: relative;
-  margin-bottom: 52px;
-  padding: 40px 0;
+  width: 100%;
+  min-height: 92vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 0;
 }
 
-/* Orb sits behind the hero content, non-interactive, gently faded. */
+/* Orb: NOW full-bleed foreground, interactive */
 .hero-orb {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 620px;
-  height: 620px;
-  max-width: 120vw;
-  pointer-events: none;
-  opacity: 0.55;
+  inset: 0;
+  pointer-events: auto;   /* hover kaam karega */
+  opacity: 0.85;
   z-index: 0;
-  filter: blur(2px);
 }
 
 .hero-content {
   position: relative;
   z-index: 1;
+  width: 100%;
+  pointer-events: none;   /* let orb catch pointer, buttons still work */
+}
+
+/* Restore pointer for interactive hero children */
+.hero-content a,
+.hero-content button {
+  pointer-events: auto;
+}
+
+.hero-inner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 80px 24px;
+  text-align: center;
+}
+
+.hero-inner .tagline {
+  max-width: 580px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-inner .hero-actions {
+  justify-content: center;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-orb {
-    display: none;
-  }
+  .hero-orb { display: none; }
 }
 
 .hero .badge {
