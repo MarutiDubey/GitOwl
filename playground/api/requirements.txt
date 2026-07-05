@@ -1,0 +1,11 @@
+# Playground API dependencies (Vercel Python function).
+# Mirrors the root requirements.txt minus semgrep (not used in the playground
+# path -- pasted diffs aren't a checked-out repo, and the function host is
+# too constrained for Semgrep's install size). Kept in sync with ../../requirements.txt.
+
+fastapi==0.115.6
+pydantic==2.10.4
+
+httpx==0.28.1
+python-dotenv==1.0.1
+unidiff==0.7.5
