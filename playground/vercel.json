@@ -1,0 +1,12 @@
+{
+  "buildCommand": "cd web && npm install && npm run build",
+  "outputDirectory": "web/dist",
+  "functions": {
+    "api/review.py": {
+      "runtime": "python3.12"
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/review" }
+  ]
+}
