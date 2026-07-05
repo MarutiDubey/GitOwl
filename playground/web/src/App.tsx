@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useEffect } from "react";
+import { lazy, Suspense, useState } from "react";
 import { motion } from "motion/react";
 import { DiffInput } from "./components/DiffInput";
 import { ReviewOutput } from "./components/ReviewOutput";
@@ -7,7 +7,7 @@ import { Screenshot } from "./components/Screenshot";
 import { Features } from "./components/Features";
 import { Setup } from "./components/Setup";
 import { reviewDiff, ReviewApiError, EXAMPLE_DIFF, type ReviewResponse } from "./api";
-import { initFloatingCursor } from "./floatingCursor";
+import { CustomCursor } from "./components/CustomCursor";
 
 const REPO_URL = "https://github.com/MarutiDubey/GitOwl";
 
@@ -29,20 +29,6 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ReviewResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  // Custom floating cursor — only on non-touch devices.
-  useEffect(() => {
-    const isTouch = window.matchMedia("(pointer: coarse)").matches;
-    if (isTouch) return;
-    const cursor = initFloatingCursor({
-      size: 38,
-      color: "rgba(99,160,255,0.9)",
-      borderWidth: 1.5,
-      ease: 0.16,
-      hoverScale: 1.5,
-    });
-    return () => cursor.destroy();
-  }, []);
 
   async function handleReview() {
     setLoading(true);
@@ -67,6 +53,7 @@ function App() {
 
   return (
     <>
+      <CustomCursor />
       <header className="site-header">
         <div className="logo-row">
           <div className="owl-icon" aria-hidden="true">
