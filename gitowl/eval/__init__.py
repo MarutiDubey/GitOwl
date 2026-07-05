@@ -15,14 +15,7 @@ from pathlib import Path
 
 from gitowl.config import Config
 from gitowl.eval import mock_provider  # noqa: F401 - registers eval-mock provider
-from gitowl.eval.scoring import (
-    CaseResult,
-    EvalCase,
-    EvalReport,
-    ExpectedBug,
-    aggregate,
-    score_case,
-)
+from gitowl.eval.scoring import CaseResult, EvalCase, EvalReport, ExpectedBug, aggregate, score_case
 from gitowl.logging_config import get_logger
 from gitowl.reviewer import review_diff
 
