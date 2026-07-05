@@ -160,7 +160,35 @@ a {
 }
 
 .hero {
+  position: relative;
   margin-bottom: 52px;
+  padding: 40px 0;
+}
+
+/* Orb sits behind the hero content, non-interactive, gently faded. */
+.hero-orb {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 620px;
+  height: 620px;
+  max-width: 120vw;
+  pointer-events: none;
+  opacity: 0.55;
+  z-index: 0;
+  filter: blur(2px);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-orb {
+    display: none;
+  }
 }
 
 .hero .badge {
@@ -584,6 +612,51 @@ button.secondary {
 .try-sub {
   color: var(--text);
   margin-bottom: 20px;
+}
+
+/* ── Example chips ── */
+.examples {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.examples-label {
+  font-size: 13px;
+  color: var(--text);
+  margin-right: 4px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-h);
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.1s;
+}
+
+.chip:hover:not(:disabled) {
+  border-color: var(--accent-light);
+  transform: translateY(-1px);
+}
+
+.chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.chip-dot {
+  font-size: 10px;
+  line-height: 1;
 }
 
 /* ── Features ── */
