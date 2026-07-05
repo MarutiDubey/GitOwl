@@ -9,6 +9,8 @@ import { Setup } from "./components/Setup";
 import { reviewDiff, ReviewApiError, EXAMPLE_DIFF, type ReviewResponse } from "./api";
 import { CustomCursor } from "./components/CustomCursor";
 import ScrollFloat from "./components/ScrollFloat";
+import ClickSpark from "./components/ClickSpark";
+import GradualBlur from "./components/GradualBlur";
 
 const REPO_URL = "https://github.com/MarutiDubey/GitOwl";
 
@@ -53,7 +55,13 @@ function App() {
   }
 
   return (
-    <>
+    <ClickSpark
+      sparkColor="rgba(99,160,255,1)"
+      sparkSize={12}
+      sparkRadius={20}
+      sparkCount={8}
+      duration={500}
+    >
       <CustomCursor />
       <header className="site-header">
         <div className="logo-row">
@@ -162,7 +170,9 @@ function App() {
           </a>
         </footer>
       </div>
-    </>
+
+      <GradualBlur preset="page-footer" opacity={1} strength={2.5} />
+    </ClickSpark>
   );
 }
 

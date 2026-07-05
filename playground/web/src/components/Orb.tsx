@@ -184,7 +184,7 @@ export default function Orb({
     vec4 mainImage(vec2 fragCoord) {
       vec2 center = iResolution.xy * 0.5;
       float size = min(iResolution.x, iResolution.y);
-      vec2 uv = (fragCoord - center) / size * 2.0;
+      vec2 uv = (fragCoord - center) / size * 1.4;
 
       float angle = rot;
       float s = sin(angle);
