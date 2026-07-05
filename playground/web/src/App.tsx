@@ -11,8 +11,19 @@ import { CustomCursor } from "./components/CustomCursor";
 import ScrollFloat from "./components/ScrollFloat";
 import ClickSpark from "./components/ClickSpark";
 import GradualBlur from "./components/GradualBlur";
+import BlurText from "./components/BlurText";
+import TextType from "./components/TextType";
+import GooeyNav from "./components/GooeyNav";
 
 const REPO_URL = "https://github.com/MarutiDubey/GitOwl";
+
+const NAV_ITEMS = [
+  { label: "How it works", href: "#how" },
+  { label: "Try it live", href: "#try" },
+  { label: "Features", href: "#features" },
+  { label: "Setup", href: "#setup" },
+];
+
 
 // WebGL orb — lazy so it never blocks first paint.
 const Orb = lazy(() => import("./components/Orb"));
@@ -57,8 +68,8 @@ function App() {
   return (
     <ClickSpark
       sparkColor="rgba(99,160,255,1)"
-      sparkSize={12}
-      sparkRadius={20}
+      sparkSize={14}
+      sparkRadius={50}
       sparkCount={8}
       duration={500}
     >
@@ -84,6 +95,12 @@ function App() {
           </div>
           <span className="site-name">GitOwl</span>
         </div>
+        <GooeyNav
+          items={NAV_ITEMS}
+          particleCount={12}
+          animationTime={500}
+          initialActiveIndex={0}
+        />
         <a className="gh-link" href={REPO_URL} target="_blank" rel="noreferrer">
           GitHub →
         </a>
@@ -107,9 +124,28 @@ function App() {
               <br />
               on autopilot.
             </motion.h1>
-            <motion.p className="tagline" variants={item}>
-              GitOwl reviews every pull request with AI — flagging bugs, security risks, and scoring
-              overall risk, then posting it as a comment. Add it to any repo in 3 steps.
+            <motion.div variants={item}>
+              <BlurText
+                text="GitOwl reviews every pull request with AI — flagging bugs, security risks, and scoring overall risk, then posting it as a comment."
+                animateBy="words"
+                direction="top"
+                delay={80}
+                stepDuration={0.4}
+                className="tagline"
+              />
+            </motion.div>
+            <motion.p className="tagline-type" variants={item}>
+              Add it to any repo in 3 steps.{" "}
+              <TextType
+                text={["No signup.", "Free to try.", "Open source.", "3 steps setup."]}
+                typingSpeed={60}
+                pauseDuration={1800}
+                deletingSpeed={35}
+                showCursor={true}
+                cursorCharacter="|"
+                cursorClassName="tagline-cursor"
+                startOnVisible={false}
+              />
             </motion.p>
             <motion.div className="hero-actions" variants={item}>
               <a className="btn-primary" href={REPO_URL} target="_blank" rel="noreferrer">
@@ -125,15 +161,15 @@ function App() {
 
       <div className="page-content">
         <Reveal>
-          <HowItWorks />
+          <section id="how"><HowItWorks /></section>
         </Reveal>
 
         <Reveal>
-          <Screenshot />
+          <section id="screenshot"><Screenshot /></section>
         </Reveal>
 
         <Reveal>
-          <section className="try">
+          <section id="try" className="try">
             <ScrollFloat
               animationDuration={1}
               ease="back.inOut(2)"
@@ -155,11 +191,11 @@ function App() {
         </Reveal>
 
         <Reveal>
-          <Features />
+          <section id="features"><Features /></section>
         </Reveal>
 
         <Reveal>
-          <Setup />
+          <section id="setup"><Setup /></section>
         </Reveal>
 
         <footer>

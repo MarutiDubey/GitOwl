@@ -794,3 +794,132 @@ footer {
   border-top: 1px solid var(--border);
   padding-top: 24px;
 }
+
+/* ── GooeyNav in header ── */
+.site-header .gooey-nav-container nav ul {
+  gap: 0.5em;
+}
+.site-header .gooey-nav-container nav ul li a {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0.4em 0.9em;
+  color: var(--text-h);
+  text-decoration: none;
+}
+.site-header .gooey-nav-container nav ul li.active a { color: #000; }
+.site-header .gooey-nav-container .effect.text { color: var(--text-h); }
+.site-header .gooey-nav-container .effect.text.active { color: #000; }
+.site-header .gooey-nav-container .effect.filter::before { background: transparent; }
+
+/* ── TextType tagline ── */
+.tagline-type {
+  font-size: 16px;
+  color: var(--text);
+  margin: 6px 0 28px;
+  display: block;
+}
+.tagline-cursor {
+  color: var(--accent);
+  font-weight: 400;
+}
+
+/* ── SpotlightCard override for features-grid ── */
+.feature-spotlight {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  padding: 20px;
+}
+
+/* ── Terminal window UI ── */
+.terminal-window {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  margin: 20px 0;
+  font-family: var(--mono);
+}
+
+.terminal-titlebar {
+  background: #1e1e1e;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.term-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.term-dot.red    { background: #ff5f57; }
+.term-dot.yellow { background: #febc2e; }
+.term-dot.green  { background: #28c840; }
+
+.terminal-filename {
+  margin-left: 8px;
+  font-size: 12px;
+  color: #888;
+  flex: 1;
+  text-align: center;
+}
+
+.term-copy-btn {
+  font-size: 12px;
+  background: rgba(255,255,255,0.08);
+  color: #ccc;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.term-copy-btn:hover { background: rgba(255,255,255,0.18); color: #fff; }
+
+.terminal-body {
+  display: flex;
+  background: #0d1117;
+  overflow-x: auto;
+}
+
+.terminal-line-numbers {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 0;
+  min-width: 40px;
+  text-align: right;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  user-select: none;
+}
+
+.line-number {
+  font-size: 12px;
+  line-height: 1.8;
+  color: rgba(255,255,255,0.2);
+  padding: 0 10px;
+  display: block;
+}
+
+.terminal-code {
+  margin: 0;
+  padding: 16px 20px;
+  flex: 1;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.terminal-code-line {
+  font-size: 12px;
+  line-height: 1.8;
+  --term-comment: #6a9955;
+  --term-key: #9cdcfe;
+  --term-val: #ce9178;
+}
+
+/* ── how-step inside BorderGlow ── */
+.how-step { border: none; border-radius: 0; background: transparent; }
+
