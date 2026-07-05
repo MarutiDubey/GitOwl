@@ -280,53 +280,58 @@ button.secondary {
 .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
 
 /* ── Error / Result ── */
-.error-box {
-  border: 1px solid var(--risk-high);
-  background: var(--risk-high-bg);
-  color: var(--risk-high);
-  border-radius: 10px;
-  padding: 14px 18px;
-  margin-bottom: 24px;
-}
-
 .result {
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 24px;
+  border-radius: 14px;
   background: var(--bg);
   box-shadow: var(--shadow);
+  overflow: hidden;
 }
 
-.risk-row {
+/* Colored top accent bar per risk level */
+.result--low    { border-top: 3px solid var(--risk-low); }
+.result--medium { border-top: 3px solid var(--risk-medium); }
+.result--high   { border-top: 3px solid var(--risk-high); }
+
+.result-header {
+  padding: 20px 24px 0;
+}
+
+.risk-pill-wrap {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 14px;
   flex-wrap: wrap;
+  margin-bottom: 16px;
 }
 
 .risk-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-weight: 700;
-  font-size: 12px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 0.3px;
   border-radius: 999px;
-  padding: 4px 14px;
+  padding: 6px 16px;
 }
 
 .risk-badge.low {
   color: var(--risk-low);
   background: var(--risk-low-bg);
+  border: 1px solid var(--risk-low);
 }
 
 .risk-badge.medium {
   color: var(--risk-medium);
   background: var(--risk-medium-bg);
+  border: 1px solid var(--risk-medium);
 }
 
 .risk-badge.high {
   color: var(--risk-high);
   background: var(--risk-high-bg);
+  border: 1px solid var(--risk-high);
 }
 
 .stats {
@@ -335,58 +340,130 @@ button.secondary {
   color: var(--text);
 }
 
+.stat-add { color: var(--risk-low); font-weight: 600; }
+.stat-del { color: var(--risk-high); font-weight: 600; }
+
 .summary {
-  margin-bottom: 24px;
+  margin: 0 24px 20px;
   line-height: 1.65;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 20px;
 }
 
-.findings h3 {
-  font-size: 15px;
-  margin-bottom: 12px;
+/* ── Findings ── */
+.findings {
+  padding: 0 24px 24px;
+}
+
+.findings-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 14px;
   color: var(--text-h);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 20px 0 12px;
+}
+
+.findings-count {
+  background: var(--accent-bg);
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 1px 9px;
 }
 
 .finding {
-  border-top: 1px solid var(--border);
-  padding: 16px 0;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  border-left: 4px solid var(--border);
+  background: var(--code-bg);
+  transition: transform 0.1s;
 }
 
-.finding:first-child {
-  border-top: none;
+.finding:hover { transform: translateX(2px); }
+
+.finding--error  { border-left-color: var(--risk-high); }
+.finding--warning{ border-left-color: var(--risk-medium); }
+.finding--info   { border-left-color: var(--accent); }
+
+.finding-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
 }
+
+.finding-icon { font-size: 14px; flex-shrink: 0; }
 
 .finding-title {
   font-weight: 600;
   color: var(--text-h);
+  font-size: 14px;
 }
 
 .finding-location {
   font-family: var(--mono);
-  font-size: 12px;
-  opacity: 0.7;
-  margin-top: 2px;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--border);
+  color: var(--text);
+  margin-left: auto;
 }
 
 .finding-message {
-  margin: 8px 0 0;
+  margin: 0;
   line-height: 1.6;
+  font-size: 14px;
+  color: var(--text);
 }
 
 .suggestion {
   margin-top: 12px;
   font-family: var(--mono);
-  font-size: 13px;
-  background: var(--code-bg);
-  border: 1px solid var(--border);
+  font-size: 12px;
+  background: rgba(21, 128, 61, 0.06);
+  border: 1px solid rgba(21, 128, 61, 0.25);
   border-radius: 8px;
   padding: 12px 14px;
   white-space: pre-wrap;
+  color: var(--text-h);
 }
 
-.clean {
+.suggestion-label {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--risk-low);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+/* ── Clean state ── */
+.clean-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 10px;
+  padding: 16px 18px;
+  background: var(--risk-low-bg);
+  border: 1px solid var(--risk-low);
   color: var(--risk-low);
   font-weight: 600;
+  margin-top: 16px;
 }
+
+.clean-icon { font-size: 20px; }
+
+
 
 /* ── Setup section ── */
 .setup {
