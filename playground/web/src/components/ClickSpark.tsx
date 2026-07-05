@@ -1,4 +1,5 @@
-import { useRef, useEffect, useCallback, ReactNode } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
+import type { ReactNode } from 'react';
 
 type ClickSparkProps = {
   sparkColor?: string;
