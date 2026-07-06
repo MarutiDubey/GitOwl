@@ -46,7 +46,7 @@ export default function ScrollFloat({
 
     const charElements = el.querySelectorAll(".char");
 
-    // Set initial invisible state immediately so there's no flash
+    // Flash rokne ke liye initially invisible rakha hai
     gsap.set(charElements, { opacity: 0, yPercent: 60, scaleY: 1.4, scaleX: 0.85, transformOrigin: "50% 0%" });
 
     const ctx = gsap.context(() => {
@@ -62,7 +62,7 @@ export default function ScrollFloat({
           trigger: el,
           scroller,
           start: scrollStart,
-          // Fire once and stay — no scrub, so text stays visible permanently
+          // Ek baar trigger hoke visible rahega (no scrub)
           toggleActions: "play none none none",
           once: true,
         },

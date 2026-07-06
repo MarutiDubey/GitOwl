@@ -212,7 +212,7 @@ export default function Orb({
     try {
       renderer = new Renderer({ alpha: true, premultipliedAlpha: false });
     } catch {
-      // WebGL unavailable — leave the container empty, hero still fine.
+      // Agar WebGL support nahi karta toh container empty rahega, hero section theek dikhega
       return;
     }
     const gl = renderer.gl;
