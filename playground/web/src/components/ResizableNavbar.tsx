@@ -86,7 +86,7 @@ export const NavBody = ({ children, className = "", visible }: NavBodyProps) => 
   );
 };
 
-export const NavItems = ({ items, className = "", onItemClick }: NavItemsProps) => {
+export const NavItems = ({ items, className = "" }: NavItemsProps) => {
   // Convert items format from {name, link} to {label, href} for GooeyNav
   const gooeyItems = items.map(item => ({ label: item.name, href: item.link }));
 
@@ -94,12 +94,12 @@ export const NavItems = ({ items, className = "", onItemClick }: NavItemsProps) 
     <div className={`res-nav-items ${className}`}>
       <GooeyNav
         items={gooeyItems}
-        particleCount={15}
-        particleDistances={[90, 10]}
-        particleR={100}
+        particleCount={20}
+        particleDistances={[120, 15]}
+        particleR={150}
         initialActiveIndex={0}
-        animationTime={600}
-        timeVariance={300}
+        animationTime={800}
+        timeVariance={400}
         colors={[1, 2, 3, 1, 2, 3, 1, 4]}
       />
     </div>
