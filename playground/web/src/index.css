@@ -880,26 +880,8 @@ footer {
   text-decoration: none;
 }
 
-/* ACTIVE STATE - Black text on white pill */
-.gooey-nav-container nav ul li.active a {
-  color: #000000 !important;
-  text-shadow: none !important;
-}
-
 .site-header .gooey-nav-container nav ul li:hover {
   box-shadow: 0 0 0 1.5px white !important;
-}
-
-.site-header .gooey-nav-container .effect.text {
-  color: var(--text-h);
-}
-
-.site-header .gooey-nav-container .effect.text.active {
-  color: var(--text-h);
-}
-
-.site-header .gooey-nav-container .effect.filter::before {
-  background: transparent;
 }
 
 /* ── TextType tagline ── */
