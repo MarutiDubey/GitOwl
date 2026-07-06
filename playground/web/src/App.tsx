@@ -221,8 +221,6 @@ function App() {
             <ScrollFloat
               animationDuration={1}
               ease="back.inOut(2)"
-              scrollStart="center bottom+=50%"
-              scrollEnd="bottom bottom-=40%"
               stagger={0.04}
               textClassName="try-heading"
             >

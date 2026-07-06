@@ -24,8 +24,8 @@ export default function ScrollFloat({
   textClassName = "",
   animationDuration = 1,
   ease = "back.inOut(2)",
-  scrollStart = "center bottom+=50%",
-  scrollEnd = "bottom bottom-=40%",
+  scrollStart = "top bottom",
+  scrollEnd = "bottom center",
   stagger = 0.03,
 }: ScrollFloatProps) {
   const containerRef = useRef<HTMLHeadingElement>(null);
@@ -78,7 +78,15 @@ export default function ScrollFloat({
       );
     }, el);
 
-    return () => ctx.revert();
+    // Refresh ScrollTrigger to account for any layout shifts (fonts, images)
+    const timeoutId = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 200);
+
+    return () => {
+      clearTimeout(timeoutId);
+      ctx.revert();
+    };
   }, [scrollContainerRef, animationDuration, ease, scrollStart, scrollEnd, stagger]);
 
   return (
