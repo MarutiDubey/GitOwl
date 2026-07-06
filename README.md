@@ -50,6 +50,12 @@ Open a pull request and GitOwl does the first review pass for you:
 > **[live playground](https://gitowl.vercel.app)** and watch GitOwl review it in
 > real time — no install, no signup.
 
+<br/>
+
+<div align="center">
+  <img src="docs/demo.gif" alt="GitOwl Action Demo" width="100%" />
+</div>
+
 ---
 
 ## 🚀 Key Features
