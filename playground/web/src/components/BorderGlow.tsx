@@ -55,6 +55,7 @@ function animateValue({ start = 0, end = 100, duration = 1000, delay = 0, ease =
 type BorderGlowProps = {
   children: ReactNode;
   className?: string;
+  style?: React.CSSProperties;
   edgeSensitivity?: number;
   glowColor?: string;
   backgroundColor?: string;
