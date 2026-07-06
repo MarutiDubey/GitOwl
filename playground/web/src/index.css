@@ -216,6 +216,18 @@ a {
   max-width: 700px;
 }
 
+/* BlurText hero heading */
+.hero-h1-blur {
+  font-size: 44px;
+  font-weight: 700;
+  color: var(--text-h);
+  letter-spacing: -1px;
+  line-height: 1.15;
+  margin: 0 0 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
 .hero {
   position: relative;
   width: 100%;
@@ -813,9 +825,10 @@ footer {
   color: var(--text-h);
   text-decoration: none;
 }
-.site-header .gooey-nav-container nav ul li.active a { color: #000; }
+/* Hide the native li text when active — only the effect overlay should be visible */
+.site-header .gooey-nav-container nav ul li.active a { color: transparent; }
 .site-header .gooey-nav-container .effect.text { color: var(--text-h); }
-.site-header .gooey-nav-container .effect.text.active { color: #000; }
+.site-header .gooey-nav-container .effect.text.active { color: var(--text-h); }
 .site-header .gooey-nav-container .effect.filter::before { background: transparent; }
 
 /* ── TextType tagline ── */
@@ -929,4 +942,18 @@ footer {
 
 /* ── how-step inside BorderGlow ── */
 .how-step { border: none; border-radius: 0; background: transparent; }
+
+/* ── GlitchText override for setup heading ── */
+.setup-glitch-heading {
+  font-size: clamp(1.4rem, 4vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text-h);
+  margin-bottom: 8px;
+}
+
+.setup-glitch-heading::after,
+.setup-glitch-heading::before {
+  background-color: var(--bg);
+}
 

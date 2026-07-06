@@ -121,11 +121,14 @@ function App() {
             <motion.span className="badge" variants={item}>
               AI-assisted code review
             </motion.span>
-            <motion.h1 variants={item}>
-              Smarter PR reviews,
-              <br />
-              on autopilot.
-            </motion.h1>
+            <BlurText
+              text="Smarter PR reviews, on autopilot."
+              animateBy="words"
+              direction="top"
+              delay={100}
+              stepDuration={0.5}
+              className="hero-h1-blur"
+            />
             <BlurText
               text="GitOwl reviews every pull request with AI — flagging bugs, security risks, and scoring overall risk, then posting it as a comment."
               animateBy="words"
