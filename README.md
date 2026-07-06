@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/owl.png" alt="GitOwl logo" width="120" height="120" />
+  <img src="docs/owl_round.png" alt="GitOwl logo" width="120" height="120" />
 
   # GitOwl
   **AI-powered code review that lives inside your pull requests.**
