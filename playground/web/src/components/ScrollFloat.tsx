@@ -69,7 +69,7 @@ export default function ScrollFloat({
       });
     }, el);
 
-    // Refresh ScrollTrigger after layout settles (fonts, images, etc.)
+    // Fonts aur images load hone ke baad ScrollTrigger wapas refresh kiya hai taaki positions sahi rahein
     const timeoutId = setTimeout(() => {
       ScrollTrigger.refresh();
     }, 300);

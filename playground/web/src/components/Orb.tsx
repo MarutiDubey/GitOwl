@@ -1,6 +1,5 @@
-// Ported from React Bits "Orb" (https://reactbits.dev) to TypeScript.
-// A lightweight WebGL glowing orb via ogl (~20KB). Used as a subtle hero
-// backdrop; tuned toward the GitOwl navy accent.
+// Ye ek lightweight WebGL glowing orb component hai. 
+// Background me ek navy accent wala glow effect dene ke liye use kiya hai taaki UI accha lage.
 import { Mesh, Program, Renderer, Triangle, Vec3 } from "ogl";
 import { useEffect, useRef } from "react";
 import "./Orb.css";
