@@ -134,7 +134,7 @@ export const MobileNavHeader = ({ children, className = "" }: MobileNavHeaderPro
   return <div className={`res-nav-mobile-header ${className}`}>{children}</div>;
 };
 
-export const MobileNavMenu = ({ children, className = "", isOpen, onClose }: MobileNavMenuProps) => {
+export const MobileNavMenu = ({ children, className = "", isOpen }: MobileNavMenuProps) => {
   return (
     <AnimatePresence>
       {isOpen && (
