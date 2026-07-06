@@ -214,6 +214,6 @@ python -m gitowl.eval    # measure review quality (offline, no key)
 **[🔗 Live demo](https://gitowl.vercel.app)** &nbsp;·&nbsp; **[📦 PyPI](https://pypi.org/project/gitowl/)**
 
 <br />
-Built with ❤️ by **[Manthan Dubey](https://github.com/MarutiDubey)** with the help of **Devlooper**
+Built with ❤️ by **Manthan Dubey** with the help of **Devlooper**
 
 </div>
