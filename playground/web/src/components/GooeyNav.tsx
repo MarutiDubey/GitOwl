@@ -132,8 +132,14 @@ const GooeyNav = ({
       <nav>
         <ul ref={navRef}>
           {items.map((item, index) => (
-            <li key={index} className={activeIndex === index ? 'active' : ''} onClick={e => handleClick(e, index)}>
-              <a href={item.href}>{item.label}</a>
+            <li 
+              key={index} 
+              className={activeIndex === index ? 'active' : ''} 
+              onClick={e => handleClick(e, index)}
+            >
+              <a href={item.href}>
+                {item.label}
+              </a>
             </li>
           ))}
         </ul>

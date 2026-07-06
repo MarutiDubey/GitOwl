@@ -877,13 +877,13 @@ footer {
   font-size: 14px;
   font-weight: 500;
   padding: 0.4em 0.9em;
-  color: var(--text-h);
   text-decoration: none;
 }
 
-/* Hide the native li text when active — only the effect overlay should be visible */
-.site-header .gooey-nav-container nav ul li.active a {
-  color: transparent;
+/* ACTIVE STATE - Black text on white pill */
+.gooey-nav-container nav ul li.active a {
+  color: #000000 !important;
+  text-shadow: none !important;
 }
 
 .site-header .gooey-nav-container nav ul li:hover {
