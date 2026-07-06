@@ -30,9 +30,7 @@ export function HowItWorks() {
     <section className="how">
       <ScrollFloat
         animationDuration={1}
-        ease="back.inOut(2)"
-        scrollStart="center bottom+=50%"
-        scrollEnd="bottom bottom-=40%"
+        ease="back.out(1.4)"
         stagger={0.04}
         textClassName="how-heading"
       >

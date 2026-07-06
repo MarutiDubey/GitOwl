@@ -13,7 +13,6 @@ type ScrollFloatProps = {
   animationDuration?: number;
   ease?: string;
   scrollStart?: string;
-  scrollEnd?: string;
   stagger?: number;
 };
 
@@ -22,10 +21,9 @@ export default function ScrollFloat({
   scrollContainerRef,
   containerClassName = "",
   textClassName = "",
-  animationDuration = 1,
-  ease = "back.inOut(2)",
-  scrollStart = "top bottom",
-  scrollEnd = "bottom center",
+  animationDuration = 0.8,
+  ease = "back.out(1.4)",
+  scrollStart = "top 85%",
   stagger = 0.03,
 }: ScrollFloatProps) {
   const containerRef = useRef<HTMLHeadingElement>(null);
@@ -48,46 +46,39 @@ export default function ScrollFloat({
 
     const charElements = el.querySelectorAll(".char");
 
+    // Set initial invisible state immediately so there's no flash
+    gsap.set(charElements, { opacity: 0, yPercent: 60, scaleY: 1.4, scaleX: 0.85, transformOrigin: "50% 0%" });
+
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        charElements,
-        {
-          willChange: "opacity, transform",
-          opacity: 0,
-          yPercent: 120,
-          scaleY: 2.3,
-          scaleX: 0.7,
-          transformOrigin: "50% 0%",
+      gsap.to(charElements, {
+        duration: animationDuration,
+        ease,
+        opacity: 1,
+        yPercent: 0,
+        scaleY: 1,
+        scaleX: 1,
+        stagger,
+        scrollTrigger: {
+          trigger: el,
+          scroller,
+          start: scrollStart,
+          // Fire once and stay — no scrub, so text stays visible permanently
+          toggleActions: "play none none none",
+          once: true,
         },
-        {
-          duration: animationDuration,
-          ease,
-          opacity: 1,
-          yPercent: 0,
-          scaleY: 1,
-          scaleX: 1,
-          stagger,
-          scrollTrigger: {
-            trigger: el,
-            scroller,
-            start: scrollStart,
-            end: scrollEnd,
-            scrub: 0.6,
-          },
-        }
-      );
+      });
     }, el);
 
-    // Refresh ScrollTrigger to account for any layout shifts (fonts, images)
+    // Refresh ScrollTrigger after layout settles (fonts, images, etc.)
     const timeoutId = setTimeout(() => {
       ScrollTrigger.refresh();
-    }, 200);
+    }, 300);
 
     return () => {
       clearTimeout(timeoutId);
       ctx.revert();
     };
-  }, [scrollContainerRef, animationDuration, ease, scrollStart, scrollEnd, stagger]);
+  }, [scrollContainerRef, animationDuration, ease, scrollStart, stagger]);
 
   return (
     <h2 ref={containerRef} className={`scroll-float ${containerClassName}`}>
