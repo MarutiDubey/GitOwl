@@ -43,6 +43,11 @@
   font-weight: 500;
   color: var(--text);
   transition: all 0.2s;
+  pointer-events: none;
+}
+
+.res-nav-items > * {
+  pointer-events: auto;
 }
 
 .res-nav-item {

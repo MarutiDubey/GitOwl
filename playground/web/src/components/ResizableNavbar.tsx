@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { IconMenu2, IconX } from "@tabler/icons-react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "motion/react";
+import GooeyNav from "./GooeyNav";
 import "./ResizableNavbar.css";
 
 interface NavbarProps {
@@ -86,24 +87,21 @@ export const NavBody = ({ children, className = "", visible }: NavBodyProps) => 
 };
 
 export const NavItems = ({ items, className = "", onItemClick }: NavItemsProps) => {
-  const [hovered, setHovered] = useState<number | null>(null);
+  // Convert items format from {name, link} to {label, href} for GooeyNav
+  const gooeyItems = items.map(item => ({ label: item.name, href: item.link }));
 
   return (
-    <div className={`res-nav-items ${className}`} onMouseLeave={() => setHovered(null)}>
-      {items.map((item, idx) => (
-        <a
-          key={`link-${idx}`}
-          href={item.link}
-          className="res-nav-item"
-          onMouseEnter={() => setHovered(idx)}
-          onClick={onItemClick}
-        >
-          {hovered === idx && (
-            <motion.div layoutId="nav-hovered" className="res-nav-item-hover-bg" />
-          )}
-          <span className="res-nav-item-text">{item.name}</span>
-        </a>
-      ))}
+    <div className={`res-nav-items ${className}`}>
+      <GooeyNav
+        items={gooeyItems}
+        particleCount={15}
+        particleDistances={[90, 10]}
+        particleR={100}
+        initialActiveIndex={0}
+        animationTime={600}
+        timeVariance={300}
+        colors={[1, 2, 3, 1, 2, 3, 1, 4]}
+      />
     </div>
   );
 };
@@ -134,7 +132,7 @@ export const MobileNavHeader = ({ children, className = "" }: MobileNavHeaderPro
   return <div className={`res-nav-mobile-header ${className}`}>{children}</div>;
 };
 
-export const MobileNavMenu = ({ children, className = "", isOpen, onClose }: MobileNavMenuProps) => {
+export const MobileNavMenu = ({ children, className = "", isOpen }: MobileNavMenuProps) => {
   return (
     <AnimatePresence>
       {isOpen && (
