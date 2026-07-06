@@ -140,7 +140,7 @@ function App() {
             <motion.p className="tagline-type" variants={item}>
               Add it to any repo in 3 steps.{" "}
               <TextType
-                text={["No signup.", "Free to try.", "Open source.", "3 steps setup."]}
+                text={["No signup.", "Free to try.", "Open source."]}
                 typingSpeed={60}
                 pauseDuration={1800}
                 deletingSpeed={35}
