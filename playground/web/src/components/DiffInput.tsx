@@ -1,4 +1,4 @@
-import { useRef, UIEvent, useMemo } from "react";
+import { useRef, type UIEvent, useMemo } from "react";
 import { EXAMPLES, type Example } from "../api";
 
 interface DiffInputProps {
