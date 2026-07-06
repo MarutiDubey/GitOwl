@@ -37,6 +37,8 @@ const NAV_ITEMS = [
 ];
 
 
+import { IconBrandGithub } from "@tabler/icons-react";
+
 // WebGL orb — lazy so it never blocks first paint.
 const Orb = lazy(() => import("./components/Orb"));
 
@@ -94,7 +96,14 @@ function App() {
           <NavbarLogo />
           <NavItems items={NAV_ITEMS} />
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <NavbarButton href={REPO_URL} variant="primary">GitHub</NavbarButton>
+            <NavbarButton
+              href={REPO_URL}
+              variant="primary"
+              aria-label="GitHub"
+              style={{ width: '40px', height: '40px', padding: '0', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <IconBrandGithub size={22} stroke={1.5} />
+            </NavbarButton>
           </div>
         </NavBody>
 
@@ -127,8 +136,12 @@ function App() {
                 href={REPO_URL}
                 onClick={() => setIsMobileMenuOpen(false)}
                 variant="primary"
+                aria-label="GitHub"
               >
-                GitHub
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  <IconBrandGithub size={20} stroke={2} />
+                  GitHub
+                </div>
               </NavbarButton>
             </div>
           </MobileNavMenu>
