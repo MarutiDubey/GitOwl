@@ -1,5 +1,7 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 import { motion } from "motion/react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { DiffInput } from "./components/DiffInput";
 import { ReviewOutput } from "./components/ReviewOutput";
 import { HowItWorks } from "./components/HowItWorks";
@@ -58,6 +60,20 @@ function App() {
   const [result, setResult] = useState<ReviewResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+    // Refresh ScrollTrigger after layout stabilizes to catch anchor jumps
+    const timeoutId = setTimeout(() => ScrollTrigger.refresh(), 200);
+    // Also listen to hash changes for navbar clicks
+    const handleHash = () => setTimeout(() => ScrollTrigger.refresh(), 100);
+    window.addEventListener("hashchange", handleHash);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("hashchange", handleHash);
+    };
+  }, []);
 
   async function handleReview() {
     setLoading(true);
@@ -229,9 +245,10 @@ function App() {
 
         <section id="try" className="try">
           <ScrollFloat
-            animationDuration={1}
-            ease="back.inOut(2)"
-            stagger={0.04}
+            animationDuration={0.6}
+            ease="back.out(1.4)"
+            stagger={0.02}
+            scrollStart="top 95%"
             textClassName="try-heading"
           >
             Try it live
