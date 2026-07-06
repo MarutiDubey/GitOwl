@@ -44,6 +44,7 @@ html {
 body {
   margin: 0;
   overflow-x: hidden;
+  background-color: var(--bg);
 }
 
 /* ── Custom Cursor (ported from Hackathone-Arena) ── */
@@ -150,11 +151,11 @@ section {
 .page-content {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 48px 96px;
+  padding: 0 48px 120px;
 }
 
 .page-content > div {
-  margin-bottom: 120px;
+  margin-bottom: 160px;
 }
 
 .page-content > div:last-of-type {
@@ -163,12 +164,12 @@ section {
 
 @media (max-width: 720px) {
   .page-content {
-    padding: 0 20px 72px;
+    padding: 0 24px 96px;
   }
   
   section {
     min-height: auto !important;
-    padding-top: 60px !important;
+    padding-top: 80px !important;
   }
   
   .hero {
@@ -182,6 +183,7 @@ h3 {
   font-family: var(--sans);
   font-weight: 700;
   color: var(--text-h);
+  letter-spacing: -0.03em;
 }
 
 /* ScrollFloat heading sizes */
@@ -849,53 +851,196 @@ button.secondary {
   color: var(--text);
 }
 
-/* ── How it works ── */
+/* ── How it works — Timeline Layout ── */
 .how {
   margin-top: 0;
   padding-top: 120px;
+  padding-bottom: 100px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  align-items: center;
 }
 
-.how-grid {
+.how-header {
+  text-align: center;
+  margin-bottom: 72px;
+}
+
+.how-sub {
+  color: #71717a;
+  font-size: 1rem;
+  margin-top: 12px;
+  letter-spacing: 0.01em;
+}
+
+/* Timeline wrapper */
+.how-timeline {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Vertical connector line */
+.how-connector {
+  position: absolute;
+  left: 50%;
+  top: 40px;
+  bottom: 40px;
+  width: 2px;
+  transform: translateX(-50%);
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.how-connector-fill {
+  width: 100%;
+  height: 0%;
+  background: linear-gradient(to bottom, #6366f1, #a78bfa, #38bdf8);
+  border-radius: 2px;
+  transition: height 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.how-connector-fill.how-line-active {
+  height: 100%;
+}
+
+/* Each row in the zig-zag */
+.how-timeline-row {
+  position: relative;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  margin-top: 24px;
+  grid-template-columns: 1fr 80px 1fr;
+  align-items: center;
+  gap: 0;
+  padding: 32px 0;
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.how-step {
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 22px;
-  background: var(--bg);
+.how-timeline-row.how-step-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.how-num {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: #fff;
+/* Alternating: odd rows flip card to the right */
+.how-timeline-row.how-row-reverse .how-card {
+  grid-column: 3;
+  grid-row: 1;
+  text-align: right;
+  align-items: flex-end;
+}
+
+.how-timeline-row.how-row-reverse .how-spacer {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.how-timeline-row.how-row-reverse .how-node {
+  grid-column: 2;
+}
+
+.how-timeline-row.how-row-reverse .how-card-icon {
+  align-self: flex-end;
+}
+
+/* Card */
+.how-card {
+  grid-column: 1;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  cursor: default;
+}
+
+.how-card:hover {
+  border-color: var(--step-color, #6366f1);
+  box-shadow: 0 0 40px -10px var(--step-glow, rgba(99,102,241,0.25)), 0 8px 32px rgba(0,0,0,0.3);
+  transform: translateY(-4px);
+}
+
+.how-card-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--step-color, #6366f1);
+  background: color-mix(in srgb, var(--step-color, #6366f1) 12%, transparent);
+  padding: 3px 10px;
+  border-radius: 100px;
+  width: fit-content;
+}
+
+.how-card-icon {
+  width: 44px;
+  height: 44px;
+  opacity: 0.85;
+}
+
+.how-card-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.how-card-title {
+  font-size: 1.15rem;
   font-weight: 700;
-  font-size: 15px;
+  color: var(--text-h);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.how-card-body {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: #71717a;
+  margin: 0;
+}
+
+/* Center node (numbered circle on the line) */
+.how-node {
+  grid-column: 2;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 14px;
+  z-index: 2;
+  position: relative;
 }
 
-.how-step h3 {
-  font-size: 16px;
-  margin: 0 0 8px;
+.how-node-num {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid var(--step-color, #6366f1);
+  background: var(--bg);
+  color: var(--step-color, #6366f1);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px -4px var(--step-color, #6366f1);
+  transition: box-shadow 0.3s ease;
 }
 
-.how-step p {
-  font-size: 14px;
-  line-height: 1.6;
-  margin: 0;
+.how-timeline-row:hover .how-node-num {
+  box-shadow: 0 0 32px -2px var(--step-color, #6366f1);
+}
+
+.how-spacer {
+  grid-column: 3;
 }
 
 /* ── Screenshot ── */
@@ -1204,24 +1349,25 @@ footer {
   --term-val: #ce9178;
 }
 
-/* ── how-step inside BorderGlow ── */
-.how-step {
-  border: none;
-  border-radius: 0;
-  background: transparent;
+/* Mobile: stack timeline vertically, centered */
+@media (max-width: 700px) {
+  .how-timeline {
+    max-width: 100%;
+  }
+  .how-timeline-row,
+  .how-timeline-row.how-row-reverse {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+  }
+  .how-connector { display: none; }
+  .how-node { display: none; }
+  .how-spacer { display: none; }
+  .how-card,
+  .how-timeline-row.how-row-reverse .how-card {
+    grid-column: 1;
+    grid-row: 1;
+    text-align: left;
+    align-items: flex-start;
+  }
+  .how-card-tag { align-self: flex-start; }
 }
-
-/* Stronger hover highlight on the How-it-works cards */
-.how-grid .border-glow-card {
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease;
-}
-
-.how-grid .border-glow-card:hover {
-  transform: translateY(-6px);
-  box-shadow:
-    0 18px 40px -12px rgba(245, 246, 248, 0.45),
-    0 0 0 1px var(--accent-border);
-}
-
