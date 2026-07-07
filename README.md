@@ -37,7 +37,7 @@
 
 > 🚧 **Live demo** - [gitowl.vercel.app](https://gitowl.vercel.app)
 
-*(Pro-tip: If you have a screenshot or GIF of GitOwl's inline PR comment, you can place it here in `docs/demo.png`!)*
+
 
 ---
 
