@@ -166,7 +166,7 @@ Configure your provider once via environment variables (or a local `.env`):
 ```bash
 AI_API_KEY=your_key_here          # any OpenAI-compatible provider
 AI_MODEL=your-model-name          # e.g. a fast, low-cost chat model
-AI_PROVIDER=openrouter            # openrouter | openai | ollama
+AI_PROVIDER=your provider            # ex gemini| openai | ollama
 ```
 
 > [!IMPORTANT]
