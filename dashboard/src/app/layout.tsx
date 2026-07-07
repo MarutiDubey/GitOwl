@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Outfit, Inter } from "next/font/google";
 import Sidebar from "@/components/layout/Sidebar";
+import Providers from "@/components/Providers";
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-heading" });
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
@@ -19,12 +20,14 @@ export default function RootLayout({
 
         {/* Main Application Shell with Floating Sidebar */}
         <div className="flex w-full h-full p-4 gap-6 z-10 relative">
-          <Sidebar />
-          <main className="flex-1 overflow-y-auto glass-panel rounded-2xl relative shadow-2xl">
-            <div className="p-10">
-              {children}
-            </div>
-          </main>
+          <Providers>
+            <Sidebar />
+            <main className="flex-1 overflow-y-auto glass-panel rounded-2xl relative shadow-2xl">
+              <div className="p-10">
+                {children}
+              </div>
+            </main>
+          </Providers>
         </div>
       </body>
     </html>

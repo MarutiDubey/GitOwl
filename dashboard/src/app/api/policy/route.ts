@@ -24,10 +24,15 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Repository GitOwl engine is disabled via Dashboard" }, { status: 403 });
     }
 
-    // Return the policy configuration
+    // Return the policy configuration (snake_case keys match gitowl/dashboard.py's contract)
+    const ignorePaths = repository.ignorePaths
+      ? repository.ignorePaths.split("\n").map((p) => p.trim()).filter(Boolean)
+      : [];
+
     return NextResponse.json({
-      minSeverity: repository.minSeverity,
-      aiModel: repository.aiModel,
+      min_severity: repository.minSeverity,
+      ai_model: repository.aiModel,
+      ignore_paths: ignorePaths,
     }, { status: 200 });
 
   } catch (error: any) {

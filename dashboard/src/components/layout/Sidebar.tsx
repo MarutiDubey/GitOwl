@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Settings, GitBranch, ShieldAlert } from "lucide-react";
+import { LayoutDashboard, Settings, GitBranch, ShieldAlert, LogIn, LogOut } from "lucide-react";
 import { motion } from "framer-motion";
+import { useSession, signIn, signOut } from "next-auth/react";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { data: session, status } = useSession();
 
   const links = [
     { href: "/", label: "Overview", icon: LayoutDashboard },
@@ -61,15 +63,38 @@ export default function Sidebar() {
       </nav>
 
       <div className="p-4 relative z-10">
-        <div className="flex items-center gap-3 p-3 rounded-xl bg-black/40 border border-white/[0.05] hover:border-white/[0.1] transition-colors cursor-pointer group">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1E2333] to-[#0B0E14] border border-white/[0.1] flex items-center justify-center text-[#F5A623] text-xs font-bold shadow-inner group-hover:glow-accent transition-all">
-            MD
+        {status === "loading" ? (
+          <div className="flex items-center justify-center p-3 h-[62px] rounded-xl bg-black/20 border border-white/[0.05]">
+            <div className="w-5 h-5 border-2 border-[#00E5FF] border-t-transparent rounded-full animate-spin"></div>
           </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-medium text-white group-hover:text-glow transition-all">Manthan Dubey</span>
-            <span className="text-xs text-slate-500">Workspace Admin</span>
-          </div>
-        </div>
+        ) : session ? (
+          <button 
+            onClick={() => signOut()}
+            className="w-full flex items-center gap-3 p-3 rounded-xl bg-black/40 border border-white/[0.05] hover:border-white/[0.1] transition-colors group text-left"
+          >
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1E2333] to-[#0B0E14] border border-white/[0.1] flex items-center justify-center text-[#F5A623] text-xs font-bold shadow-inner overflow-hidden">
+              {session.user?.image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={session.user.image} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                session.user?.name?.substring(0, 2).toUpperCase() || "U"
+              )}
+            </div>
+            <div className="flex flex-col flex-1 overflow-hidden">
+              <span className="text-sm font-medium text-white truncate">{session.user?.name || "User"}</span>
+              <span className="text-xs text-slate-500 truncate">{session.user?.email}</span>
+            </div>
+            <LogOut className="w-4 h-4 text-slate-500 group-hover:text-red-400 transition-colors" />
+          </button>
+        ) : (
+          <button 
+            onClick={() => signIn("github")}
+            className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all text-white font-medium text-sm"
+          >
+            <LogIn className="w-4 h-4" />
+            Sign in with GitHub
+          </button>
+        )}
       </div>
     </aside>
   );
