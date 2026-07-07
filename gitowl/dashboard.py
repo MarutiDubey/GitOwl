@@ -61,7 +61,9 @@ def fetch_policy_override(repo: str, config: Config) -> Config:
         try:
             policy = dataclasses.replace(policy, min_severity=Severity(data["min_severity"]))
         except ValueError:
-            logger.warning("Dashboard sent unknown min_severity %r (ignored).", data["min_severity"])
+            logger.warning(
+                "Dashboard sent unknown min_severity %r (ignored).", data["min_severity"]
+            )
     if "ignore_paths" in data:
         policy = dataclasses.replace(policy, ignore_paths=tuple(data["ignore_paths"]))
 
