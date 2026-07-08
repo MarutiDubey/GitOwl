@@ -1,0 +1,94 @@
+import { NextResponse } from "next/server";
+import crypto from "crypto";
+import { prisma } from "@/lib/prisma";
+import { getInstallationOctokit } from "@/lib/github";
+import { analyzeDiffAndPostReview } from "@/lib/ai";
+
+export async function POST(request: Request) {
+  const payload = await request.text();
+  const signature = request.headers.get("x-hub-signature-256");
+
+  if (!signature) {
+    return NextResponse.json({ error: "No signature found" }, { status: 401 });
+  }
+
+  const secret = process.env.WEBHOOK_SECRET;
+  if (!secret) {
+    return NextResponse.json({ error: "Webhook secret not configured" }, { status: 500 });
+  }
+
+  // Verify signature securely
+  const hmac = crypto.createHmac("sha256", secret);
+  const digest = "sha256=" + hmac.update(payload).digest("hex");
+  if (crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(digest)) === false) {
+    return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+  }
+
+  const event = request.headers.get("x-github-event");
+  const data = JSON.parse(payload);
+
+  // We only care about PRs that are opened or updated
+  if (event === "pull_request" && (data.action === "opened" || data.action === "synchronize")) {
+    const repoId = data.repository.id;
+    const prNumber = data.pull_request.number;
+    const installationId = data.installation?.id;
+
+    if (!installationId) {
+      return NextResponse.json({ error: "No installation ID" }, { status: 400 });
+    }
+
+    // Check if repo is enabled in our DB
+    const repo = await prisma.repository.findFirst({
+      where: { repoId: repoId }
+    });
+
+    if (!repo || !repo.isEnabled) {
+      return NextResponse.json({ message: "Repository not enabled for GitOwl" });
+    }
+    
+    try {
+      const octokit = await getInstallationOctokit(installationId);
+      
+      const owner = data.repository.owner.login;
+      const repoName = data.repository.name;
+      
+      // Fetch the actual diff
+      const diffResponse = await octokit.rest.pulls.get({
+        owner,
+        repo: repoName,
+        pull_number: prNumber,
+        mediaType: {
+          format: "diff"
+        }
+      });
+      
+      // Octokit returns the diff string when format is 'diff'
+      const diff = diffResponse.data as unknown as string;
+      
+      // Analyze with AI and post comment
+      await analyzeDiffAndPostReview(
+        diff,
+        repo.aiModel,
+        repo.minSeverity,
+        repo.id,
+        prNumber,
+        async (commentBody: string) => {
+          await octokit.rest.issues.createComment({
+            owner,
+            repo: repoName,
+            issue_number: prNumber,
+            body: commentBody
+          });
+        }
+      );
+      
+      return NextResponse.json({ success: true, message: "Review completed" });
+    } catch (error) {
+      console.error("Error processing PR:", error);
+      return NextResponse.json({ error: "Failed to process review" }, { status: 500 });
+    }
+  }
+
+  // Acknowledge other events without processing
+  return NextResponse.json({ message: "Event ignored" });
+}
