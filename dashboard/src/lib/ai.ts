@@ -19,9 +19,9 @@ export async function analyzeDiffAndPostReview(
   }
 
   // Resolve model names properly with provider prefixes
-  let resolvedModel = "google/gemini-2.0-flash:free"; // Default to free model to avoid 404s for 0 balance
+  let resolvedModel = "meta-llama/llama-3.3-70b-instruct:free"; // Default to free model to avoid 404s for 0 balance
   
-  if (model === "openrouter/auto") resolvedModel = "google/gemini-2.0-flash:free";
+  if (model === "openrouter/auto") resolvedModel = "meta-llama/llama-3.3-70b-instruct:free";
   else if (model === "gpt-4o") resolvedModel = "openai/gpt-4o";
   else if (model === "gpt-4o-mini") resolvedModel = "openai/gpt-4o-mini";
   else if (model === "claude-3.5-sonnet") resolvedModel = "anthropic/claude-3.5-sonnet";
