@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { getInstallationOctokit } from "@/lib/github";
 import { analyzeDiffAndPostReview } from "@/lib/ai";
 
+export const maxDuration = 60; // Allow up to 60 seconds for OpenRouter response
+
 export async function POST(request: Request) {
   const payload = await request.text();
   const signature = request.headers.get("x-hub-signature-256");
@@ -75,8 +77,10 @@ export async function POST(request: Request) {
       
       // Octokit returns the diff string when format is 'diff'
       const diff = diffResponse.data as unknown as string;
+      console.log("🟢 [WEBHOOK] Diff fetched successfully, length:", diff.length);
       
       // Analyze with AI and post comment
+      console.log("🟢 [WEBHOOK] Triggering AI Analysis...");
       await analyzeDiffAndPostReview(
         diff,
         repo.aiModel,
@@ -84,15 +88,18 @@ export async function POST(request: Request) {
         repo.id,
         prNumber,
         async (commentBody: string) => {
+          console.log("🟢 [WEBHOOK] AI Analysis complete, posting comment to GitHub...");
           await octokit.rest.issues.createComment({
             owner,
             repo: repoName,
             issue_number: prNumber,
             body: commentBody
           });
+          console.log("🟢 [WEBHOOK] Comment posted successfully!");
         }
       );
       
+      console.log("🟢 [WEBHOOK] Review flow fully completed!");
       return NextResponse.json({ success: true, message: "Review completed" });
     } catch (error) {
       console.error("Error processing PR:", error);

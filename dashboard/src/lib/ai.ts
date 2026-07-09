@@ -48,6 +48,7 @@ ${diff}
 
   const startTime = Date.now();
   
+  console.log("🟢 [OPENROUTER] Sending request to OpenRouter with model:", resolvedModel);
   const completion = await openrouter.chat.completions.create({
     model: resolvedModel,
     messages: [
@@ -55,6 +56,7 @@ ${diff}
       { role: "user", content: prompt }
     ],
   });
+  console.log("🟢 [OPENROUTER] Received response from OpenRouter");
 
   const latency = (Date.now() - startTime) / 1000;
   const responseText = completion.choices[0]?.message?.content || "No review generated.";
