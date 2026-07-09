@@ -6,7 +6,7 @@ const STEPS = [
   {
     n: "01",
     title: "Open a pull request",
-    body: "GitOwl automatically triggers on every PR — opened, updated, or reopened. No configuration needed beyond the workflow file.",
+    body: "GitOwl automatically triggers on every PR — opened, updated, or reopened. No configuration needed beyond installing the GitHub App.",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
         <circle cx="6" cy="6" r="2.5" />

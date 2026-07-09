@@ -210,7 +210,7 @@ function App() {
             <motion.p className="tagline-type" variants={item}>
               Add it to any repo in 3 steps.{" "}
               <TextType
-                text={["No signup.", "Free to try.", "Open source."]}
+                text={["One-click install.", "Free to try.", "Open source."]}
                 typingSpeed={60}
                 pauseDuration={1800}
                 deletingSpeed={35}
@@ -271,8 +271,8 @@ function App() {
         </Reveal>
 
         <footer>
-          Diffs are sent to an AI provider for review and are not stored. Static analysis (Semgrep)
-          is skipped in this playground — only the AI review layer runs.{" "}
+          Diffs are processed securely using the Google Gemini API and are never stored for training. Static analysis features
+          are skipped in this playground — only the AI review layer runs.{" "}
           <a href={REPO_URL} target="_blank" rel="noreferrer">
             View source on GitHub
           </a>
