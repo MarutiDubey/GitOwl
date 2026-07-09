@@ -11,7 +11,7 @@ type ClickSparkProps = {
   extraScale?: number;
   children?: ReactNode;
 };
-console.log('test');
+console.log('test 2nd');
 const ClickSpark = ({
   sparkColor = '#fff',
   sparkSize = 10,
