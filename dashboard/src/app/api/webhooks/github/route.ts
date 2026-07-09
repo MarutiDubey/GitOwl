@@ -7,13 +7,19 @@ import { analyzeDiffAndPostReview } from "@/lib/ai";
 export async function POST(request: Request) {
   const payload = await request.text();
   const signature = request.headers.get("x-hub-signature-256");
+  const event = request.headers.get("x-github-event");
+  
+  console.log("🟢 [WEBHOOK RECEIVED] Event:", event);
+  console.log("🟢 [WEBHOOK SIGNATURE]", signature ? "Present" : "Missing");
 
   if (!signature) {
+    console.error("🔴 [WEBHOOK ERROR] No signature found");
     return NextResponse.json({ error: "No signature found" }, { status: 401 });
   }
 
   const secret = process.env.WEBHOOK_SECRET;
   if (!secret) {
+    console.error("🔴 [WEBHOOK ERROR] Webhook secret not configured");
     return NextResponse.json({ error: "Webhook secret not configured" }, { status: 500 });
   }
 
@@ -21,11 +27,12 @@ export async function POST(request: Request) {
   const hmac = crypto.createHmac("sha256", secret);
   const digest = "sha256=" + hmac.update(payload).digest("hex");
   if (crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(digest)) === false) {
+    console.error("🔴 [WEBHOOK ERROR] Invalid signature");
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
-  const event = request.headers.get("x-github-event");
   const data = JSON.parse(payload);
+  console.log("🟢 [WEBHOOK PARSED] Action:", data.action, "Repo:", data.repository?.full_name);
 
   // We only care about PRs that are opened or updated
   if (event === "pull_request" && (data.action === "opened" || data.action === "synchronize")) {
@@ -41,11 +48,15 @@ export async function POST(request: Request) {
     const repo = await prisma.repository.findFirst({
       where: { repoId: repoId }
     });
+    
+    console.log("🟢 [WEBHOOK REPO CHECK] Found Repo in DB:", repo ? repo.fullName : "None", "Enabled:", repo?.isEnabled);
 
     if (!repo || !repo.isEnabled) {
+      console.log("🟠 [WEBHOOK SKIPPED] Repository not enabled:", repoId);
       return NextResponse.json({ message: "Repository not enabled for GitOwl" });
     }
     
+    console.log("🟢 [WEBHOOK AUTHORIZED] Starting AI review for PR:", prNumber);
     try {
       const octokit = await getInstallationOctokit(installationId);
       
