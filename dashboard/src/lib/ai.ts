@@ -1,10 +1,9 @@
-import OpenAI from "openai";
+import { GoogleGenAI } from "@google/genai";
 import { prisma } from "./prisma";
 
-const openrouter = new OpenAI({
-  baseURL: "https://openrouter.ai/api/v1",
-  apiKey: process.env.OPENROUTER_API_KEY || "missing",
-});
+// Initialise Gemini client with GEMINI_API_KEY
+// We use a dummy key if undefined to prevent crashing on import, will throw during actual call if missing.
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "missing" });
 
 export async function analyzeDiffAndPostReview(
   diff: string,
@@ -14,18 +13,9 @@ export async function analyzeDiffAndPostReview(
   prNumber: number,
   postCommentCallback: (body: string) => Promise<void>
 ) {
-  if (!process.env.OPENROUTER_API_KEY) {
-    throw new Error("OPENROUTER_API_KEY is not set");
+  if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === "missing") {
+    throw new Error("GEMINI_API_KEY is not set. Please add it to your Vercel Environment Variables.");
   }
-
-  // Resolve model names properly with provider prefixes
-  let resolvedModel = "openrouter/free"; // Default to openrouter/free which auto-routes to ANY available free model
-  
-  if (model === "openrouter/auto") resolvedModel = "openrouter/free";
-  else if (model === "gpt-4o") resolvedModel = "openai/gpt-4o";
-  else if (model === "gpt-4o-mini") resolvedModel = "openai/gpt-4o-mini";
-  else if (model === "claude-3.5-sonnet") resolvedModel = "anthropic/claude-3.5-sonnet";
-  else if (model) resolvedModel = model;
 
   const prompt = `You are GitOwl, an elite AI code reviewer and security auditor.
 Review the following pull request diff.
@@ -48,19 +38,18 @@ ${diff}
 
   const startTime = Date.now();
   
-  console.log("🟢 [OPENROUTER] Sending request to OpenRouter with model:", resolvedModel);
-  const completion = await openrouter.chat.completions.create({
-    model: resolvedModel,
-    messages: [
-      { role: "system", content: "You are GitOwl, an expert, precise, and ruthless software engineering reviewer." },
-      { role: "user", content: prompt }
-    ],
+  console.log("🟢 [GEMINI] Sending request to Gemini 2.5 Flash...");
+  const completion = await ai.models.generateContent({
+    model: 'gemini-2.5-flash',
+    contents: prompt,
+    config: {
+      systemInstruction: 'You are GitOwl, an expert, precise, and ruthless software engineering reviewer.',
+    },
   });
-  console.log("🟢 [OPENROUTER] Received response from OpenRouter");
+  console.log("🟢 [GEMINI] Received response from Gemini");
 
   const latency = (Date.now() - startTime) / 1000;
-  const responseText = completion.choices[0]?.message?.content || "No review generated.";
-  const tokensUsed = completion.usage?.total_tokens || 0;
+  const responseText = completion.text || "No review generated.";
   
   // Extract risk score from response if possible, otherwise default to Medium
   let riskScore = "Medium";
@@ -70,6 +59,9 @@ ${diff}
   // Actually post the comment to GitHub
   await postCommentCallback(responseText);
 
+  // Get token usage if available
+  const tokensUsed = completion.usageMetadata?.totalTokenCount || 0;
+
   // Log it to the database
   await prisma.reviewLog.create({
     data: {
@@ -77,7 +69,7 @@ ${diff}
       prNumber,
       riskScore,
       tokensUsed,
-      cost: (tokensUsed / 1000) * 0.001, // Rough estimate
+      cost: 0, // Free tier
       latency,
     }
   });
