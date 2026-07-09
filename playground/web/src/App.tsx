@@ -225,8 +225,12 @@ function App() {
               />
             </motion.p>
             <motion.div className="hero-actions" variants={item}>
-              <ShimmerButton href={REPO_URL} background="#1e3a8a" shimmerColor="#8ab4ff">
-                Add to your repo
+              <ShimmerButton 
+                href="https://gitowl-dashboard.vercel.app" 
+                background="#2ea043" 
+                shimmerColor="#3fb950"
+              >
+                Sign in with GitHub
               </ShimmerButton>
               <LiquidButton onClick={handleExample} color="#8ab4ff">
                 Try the live demo ↓

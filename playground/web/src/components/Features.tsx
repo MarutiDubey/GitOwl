@@ -36,8 +36,8 @@ const FEATURES = [
   },
   {
     icon: <IconSettings size={32} stroke={1.5} />,
-    title: "Configurable policy",
-    body: "A .gitowl.toml sets severity thresholds and ignored paths for the whole team.",
+    title: "Customizable Thresholds",
+    body: "Configure risk thresholds and AI models directly from your centralized GitOwl Dashboard.",
     spotlight: "rgba(244, 114, 182, 0.15)",
   },
   {
