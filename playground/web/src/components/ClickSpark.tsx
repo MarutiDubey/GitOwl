@@ -42,7 +42,7 @@ const ClickSpark = ({
         canvas.height = height;
       }
     };
-
+   // tesing commit
     const handleResize = () => {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(resizeCanvas, 100);
