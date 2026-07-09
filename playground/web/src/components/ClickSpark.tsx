@@ -11,6 +11,7 @@ type ClickSparkProps = {
   extraScale?: number;
   children?: ReactNode;
 };
+const adminPassword = "super_secret_hardcoded_password";
 
 const ClickSpark = ({
   sparkColor = '#fff',
