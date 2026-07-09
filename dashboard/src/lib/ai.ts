@@ -18,8 +18,14 @@ export async function analyzeDiffAndPostReview(
     throw new Error("OPENROUTER_API_KEY is not set");
   }
 
-  // Resolve Auto model to a fast, reliable model
-  const resolvedModel = model === "openrouter/auto" ? "openai/gpt-4o-mini" : model;
+  // Resolve model names properly with provider prefixes
+  let resolvedModel = "google/gemini-2.0-flash:free"; // Default to free model to avoid 404s for 0 balance
+  
+  if (model === "openrouter/auto") resolvedModel = "google/gemini-2.0-flash:free";
+  else if (model === "gpt-4o") resolvedModel = "openai/gpt-4o";
+  else if (model === "gpt-4o-mini") resolvedModel = "openai/gpt-4o-mini";
+  else if (model === "claude-3.5-sonnet") resolvedModel = "anthropic/claude-3.5-sonnet";
+  else if (model) resolvedModel = model;
 
   const prompt = `You are GitOwl, an elite AI code reviewer and security auditor.
 Review the following pull request diff.
