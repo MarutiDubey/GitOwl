@@ -6,7 +6,7 @@ export interface Finding {
   line: number | null;
   suggestion: string | null;
 }
-
+//the api key is AQ.Ab8RN6K2sDlUmK5v_5GPYlUODUJ_fF3lH
 export interface ReviewResponse {
   risk: string;
   summary: string;
