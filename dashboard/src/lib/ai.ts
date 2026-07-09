@@ -17,23 +17,53 @@ export async function analyzeDiffAndPostReview(
     throw new Error("GEMINI_API_KEY is not set. Please add it to your Vercel Environment Variables.");
   }
 
-  const prompt = `You are GitOwl, an elite AI code reviewer and security auditor.
+  const prompt = `You are GitOwl, an elite, enterprise-grade AI code reviewer and security auditor.
 Review the following pull request diff.
 
 Severity Threshold: ${minSeverity.toUpperCase()}
-- If threshold is ERROR: ONLY report critical bugs, security vulnerabilities, and severe performance issues. Ignore minor styling or refactoring suggestions.
-- If threshold is WARNING: Report bugs, security flaws, and significant anti-patterns or logic errors.
-- If threshold is INFO: Report all of the above, plus stylistic improvements, code organization, and optimization suggestions.
+- If ERROR: ONLY report critical bugs, security vulnerabilities, and severe performance issues.
+- If WARNING: Report bugs, security flaws, and significant anti-patterns.
+- If INFO: Report all of the above, plus stylistic improvements.
 
-Your output must be formatted in Markdown.
-1. Start with a brief, punchy summary of the changes.
-2. Provide a Risk Assessment (Low/Medium/High).
-3. If issues are found, list them clearly with file names and specific code snippets if possible.
-4. If the code looks perfect according to the threshold, state clearly that no issues were found.
+CRITICAL INSTRUCTION: Your output must look incredibly professional, premium, and visually structured. Use advanced GitHub Markdown features.
+Follow this EXACT format structure:
+
+# 🦉 GitOwl Code Review
+
+**Summary:** [Write a 2-3 sentence punchy summary of the PR]
+
+### 📊 Risk Assessment
+> **[HIGH / MEDIUM / LOW]** - [1 sentence explanation of why this risk score was given]
+
+---
+
+### 🚨 Issues Found
+[If no issues, state: "✅ **All Clear!** No issues found exceeding the ${minSeverity.toUpperCase()} threshold."]
+
+[If issues are found, format EACH issue exactly like this:]
+
+#### 🔴 [Issue Title] (Severity: Critical/High/Medium/Low)
+**File:** \`[filename]\`
+
+[1-2 sentences explaining the issue and why it is dangerous or bad practice.]
+
+**Recommendation:**
+[What the developer should do to fix it]
+
+<details>
+<summary><b>🛠️ Suggested Code Fix</b></summary>
+
+\`\`\`[language]
+// Your suggested replacement code here
+\`\`\`
+</details>
+
+---
+*Review generated automatically by GitOwl AI.*
 
 Diff:
 \`\`\`diff
-${diff}
+\${diff}
 \`\`\``;
 
   const startTime = Date.now();
