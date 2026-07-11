@@ -38,7 +38,7 @@
 **Live demo dashboard:** [gitowl.vercel.app](https://gitowl.vercel.app)
 
 
-*(Screenshot of GitOwl in action coming soon)*
+
 
 
 ---
