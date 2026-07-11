@@ -67,8 +67,8 @@ def review(req: ReviewRequest) -> ReviewResponse:
 
     try:
         result = review_diff(diff, config, semgrep_findings=[])
-    except AIProviderError:
-        raise HTTPException(502, "review failed upstream") from None
+    except AIProviderError as e:
+        raise HTTPException(502, f"review failed upstream: {str(e)}") from None
 
     findings = [
         FindingOut(
