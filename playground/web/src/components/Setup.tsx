@@ -1,138 +1,96 @@
-import { useState } from "react";
+import { motion } from "motion/react";
 import GlitchText from "./GlitchText";
-
-const WORKFLOW_LINES = [
-  { type: "comment", text: "# .github/workflows/gitowl-review.yml" },
-  { type: "key", text: "name:", val: " GitOwl Review" },
-  { type: "key", text: "on:" },
-  { type: "indent1", text: "pull_request:" },
-  { type: "indent2", text: "types: [opened, synchronize, reopened]" },
-  { type: "key", text: "permissions:" },
-  { type: "indent1", text: "contents: read" },
-  { type: "indent1", text: "pull-requests: write" },
-  { type: "key", text: "jobs:" },
-  { type: "indent1", text: "review:" },
-  { type: "indent2", text: "runs-on: ubuntu-latest" },
-  { type: "indent2", text: "steps:" },
-  { type: "indent3", text: "- uses: actions/checkout@v4" },
-  { type: "indent4", text: "with: { fetch-depth: 0 }" },
-  { type: "indent3", text: "- uses: actions/setup-python@v5" },
-  { type: "indent4", text: 'with: { python-version: "3.11" }' },
-  { type: "indent3", text: "- run: pip install gitowl" },
-  { type: "indent3", text: "- if: ${{ secrets.AI_API_KEY != '' }}" },
-  { type: "indent4", text: "env:" },
-  { type: "indent5", text: "AI_API_KEY: ${{ secrets.AI_API_KEY }}" },
-  { type: "indent5", text: "GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}" },
-  { type: "indent4", text: 'run: gitowl review-pr "${{ github.repository }}"' },
-  { type: "indent5", text: '"${{ github.event.pull_request.number }}" --post' },
-];
-
-const WORKFLOW_RAW = `# .github/workflows/gitowl-review.yml
-name: GitOwl Review
-on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-permissions:
-  contents: read
-  pull-requests: write
-jobs:
-  review:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - uses: actions/setup-python@v5
-        with: { python-version: "3.11" }
-      - run: pip install gitowl
-      - if: \${{ secrets.AI_API_KEY != '' }}
-        env:
-          AI_API_KEY: \${{ secrets.AI_API_KEY }}
-          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
-        run: gitowl review-pr "\${{ github.repository }}" "\${{ github.event.pull_request.number }}" --post`;
-
-function lineColor(type: string) {
-  if (type === "comment") return "var(--term-comment, #6a9955)";
-  if (type === "key") return "var(--term-key, #9cdcfe)";
-  return "var(--term-val, #ce9178)";
-}
+import { ShimmerButton } from "./ShimmerButton";
+import { IconLogin, IconPlugConnected, IconGitPullRequest } from "@tabler/icons-react";
 
 export function Setup() {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(WORKFLOW_RAW);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      /* noop */
+  const steps = [
+    {
+      icon: <IconLogin size={32} stroke={1.5} color="#8ab4ff" />,
+      title: "Sign in",
+      description: "Log into the GitOwl Dashboard using your GitHub account."
+    },
+    {
+      icon: <IconPlugConnected size={32} stroke={1.5} color="#8ab4ff" />,
+      title: "Install the App",
+      description: "Click 'Connect Repository' and authorize GitOwl on your chosen repos."
+    },
+    {
+      icon: <IconGitPullRequest size={32} stroke={1.5} color="#8ab4ff" />,
+      title: "Open a Pull Request",
+      description: "GitOwl automatically reviews the code and posts a professional, structured comment."
     }
-  };
+  ];
 
   return (
-    <section className="setup">
+    <section className="setup" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <GlitchText
         speed={1}
         enableShadows={true}
         enableOnHover={false}
         className="setup-heading"
       >
-        Use it on your own repo
+        Install in seconds
       </GlitchText>
-      <p>Get automated AI review comments on every pull request — 3 steps:</p>
-      <ol className="setup-steps">
-        <li>
-          <strong>Copy the workflow</strong> below into your repo at{" "}
-          <code>.github/workflows/gitowl-review.yml</code>.
-        </li>
-        <li>
-          <strong>Add a secret</strong> <code>AI_API_KEY</code> (any working API key for your preferred AI provider, e.g., OpenAI, Anthropic, Google)
-          under <em>Settings → Secrets and variables → Actions</em>.
-        </li>
-        <li>
-          <strong>Open a pull request</strong> — GitOwl reviews the diff and comments automatically.
-        </li>
-      </ol>
-
-      {/* Terminal UI */}
-      <div className="terminal-window">
-        <div className="terminal-titlebar">
-          <span className="term-dot red" />
-          <span className="term-dot yellow" />
-          <span className="term-dot green" />
-          <span className="terminal-filename">gitowl-review.yml</span>
-          <button className="term-copy-btn" onClick={handleCopy} title="Copy to clipboard">
-            {copied ? "✓ Copied" : "Copy"}
-          </button>
-        </div>
-        <div className="terminal-body">
-          <div className="terminal-line-numbers">
-            {WORKFLOW_LINES.map((_, i) => (
-              <span key={i} className="line-number">{i + 1}</span>
-            ))}
-          </div>
-          <pre className="terminal-code">
-            {WORKFLOW_LINES.map((line, i) => {
-              const indent = line.type.startsWith("indent")
-                ? parseInt(line.type.replace("indent", ""), 10) * 2
-                : 0;
-              return (
-                <div key={i} className="terminal-code-line">
-                  <span style={{ marginLeft: `${indent}ch`, color: lineColor(line.type) }}>
-                    {line.text}
-                    {line.val && <span style={{ color: "var(--term-val, #ce9178)" }}>{line.val}</span>}
-                  </span>
-                </div>
-              );
-            })}
-          </pre>
-        </div>
+      <p style={{ textAlign: 'center', maxWidth: '600px', margin: '0 auto 3rem auto', color: '#9ca3af' }}>
+        GitOwl is a GitHub App. There's no python package to install, and no workflow files to maintain. Just 3 clicks:
+      </p>
+      
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+        gap: '2rem', 
+        width: '100%', 
+        maxWidth: '1000px',
+        marginBottom: '4rem' 
+      }}>
+        {steps.map((step, index) => (
+          <motion.div 
+            key={index}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: index * 0.15, duration: 0.5 }}
+            style={{
+              background: 'rgba(30, 41, 59, 0.4)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '16px',
+              padding: '2rem',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              textAlign: 'center',
+              boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)',
+              backdropFilter: 'blur(10px)'
+            }}
+          >
+            <div style={{
+              background: 'rgba(138, 180, 255, 0.1)',
+              padding: '1rem',
+              borderRadius: '50%',
+              marginBottom: '1.5rem'
+            }}>
+              {step.icon}
+            </div>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#f8fafc', marginBottom: '0.75rem', marginTop: 0 }}>
+              {index + 1}. {step.title}
+            </h3>
+            <p style={{ color: '#94a3b8', margin: 0, lineHeight: 1.5, fontSize: '0.95rem' }}>
+              {step.description}
+            </p>
+          </motion.div>
+        ))}
       </div>
 
-      <p className="setup-note">
-        GitOwl supports multiple providers natively. Just provide a valid API key and model name. Want static analysis too? Use{" "}
-        <code>pip install "gitowl[semgrep]"</code>.
-      </p>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <ShimmerButton 
+          href="https://gitowl-dashboard.vercel.app" 
+          background="#2ea043" 
+          shimmerColor="#3fb950"
+        >
+          Sign in to GitHub
+        </ShimmerButton>
+      </div>
     </section>
   );
 }

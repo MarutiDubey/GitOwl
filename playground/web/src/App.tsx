@@ -63,15 +63,11 @@ function App() {
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
-    // Layout stabilize hone ke baad ScrollTrigger refresh kar rahe hai taaki anchor jumps sahi se kaam karein
-    const timeoutId = setTimeout(() => ScrollTrigger.refresh(), 200);
-    // Navbar clicks par hash change hone par bhi refresh chalega
-    const handleHash = () => setTimeout(() => ScrollTrigger.refresh(), 100);
-    window.addEventListener("hashchange", handleHash);
+    // Layout stabilize hone ke baad ScrollTrigger refresh kar rahe hai
+    const timeoutId = setTimeout(() => ScrollTrigger.refresh(), 500);
     
     return () => {
       clearTimeout(timeoutId);
-      window.removeEventListener("hashchange", handleHash);
     };
   }, []);
 
@@ -214,7 +210,7 @@ function App() {
             <motion.p className="tagline-type" variants={item}>
               Add it to any repo in 3 steps.{" "}
               <TextType
-                text={["No signup.", "Free to try.", "Open source."]}
+                text={["One-click install.", "Free to try.", "Open source."]}
                 typingSpeed={60}
                 pauseDuration={1800}
                 deletingSpeed={35}
@@ -225,8 +221,12 @@ function App() {
               />
             </motion.p>
             <motion.div className="hero-actions" variants={item}>
-              <ShimmerButton href={REPO_URL} background="#1e3a8a" shimmerColor="#8ab4ff">
-                Add to your repo
+              <ShimmerButton 
+                href="https://gitowl-dashboard.vercel.app" 
+                background="#2ea043" 
+                shimmerColor="#3fb950"
+              >
+                Sign in with GitHub
               </ShimmerButton>
               <LiquidButton onClick={handleExample} color="#8ab4ff">
                 Try the live demo ↓
@@ -271,8 +271,8 @@ function App() {
         </Reveal>
 
         <footer>
-          Diffs are sent to an AI provider for review and are not stored. Static analysis (Semgrep)
-          is skipped in this playground — only the AI review layer runs.{" "}
+          Diffs are processed securely using the Google Gemini API and are never stored for training. Static analysis features
+          are skipped in this playground — only the AI review layer runs.{" "}
           <a href={REPO_URL} target="_blank" rel="noreferrer">
             View source on GitHub
           </a>

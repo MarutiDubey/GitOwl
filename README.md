@@ -2,11 +2,11 @@
   <img src="docs/owl_round.png" alt="GitOwl logo" width="120" height="120" />
 
   # GitOwl
-  **AI-powered code review that lives inside your pull requests.**
+  **AI Code Review Engine that lives inside your pull requests.**
 
-  *A robust, provider-agnostic engine that flags bugs, scores risk, and posts structured reviews before a human ever opens the diff.*
+  *Filters out noise, scores PR risk, and drops inline suggestions before a human even looks at the code.*
   <br/>
-  **Original Concept and Development by Manthan Dubey**
+  **Created by Manthan Dubey**
 
   [![Live Demo](https://img.shields.io/badge/Live_Demo-gitowl.vercel.app-1e3a8a?style=for-the-badge)](https://gitowl.vercel.app)
   [![PyPI](https://img.shields.io/pypi/v/gitowl?style=for-the-badge&color=1e3a8a&label=PyPI)](https://pypi.org/project/gitowl/)
@@ -24,7 +24,7 @@
 
   <br/>
 
-  > Instead of a human reviewer starting from a cold diff, the team gets an AI summary of what changed, a prioritized list of issues with reasoning, one-click fix suggestions, and an overall risk score — so review time goes to the changes that actually matter.
+  **Why I built this:** *Reviewing PRs shouldn't be a bottleneck. I wanted an engine that gives me a quick summary, flags real issues with reasoning, and scores the risk level so I know exactly what needs my attention.*
 
   <br/>
 
@@ -67,16 +67,15 @@ Try the live playground at [**gitowl.vercel.app**](https://gitowl.vercel.app) �
 
 ## ✨ Features
 
-- 🔎 **AI Code Review** — Contextual findings with reasoning, not just pattern matches. Filters false positives so the noise stays low.
-- 🚦 **Risk Scoring** — Every PR is scored Low / Medium / High from the files touched and the nature of the change.
-- 🛡️ **Optional Static Analysis** — Pairs an AI layer with Semgrep when you want both; auto-detected, never required.
-- ✍️ **One-Click Fix Suggestions** — Confident fixes are posted as GitHub inline suggestions you can commit in a single click.
-- 📝 **Auto PR Descriptions** — Generate a title, summary, and change list straight from the diff.
+- 🔎 **Smart AI Code Review** — Focuses on context and logic, not just syntax matching. Drastically reduces false positives.
+- 🚦 **Risk Scoring** — Automatically scores every PR as Low, Medium, or High risk based on the diff complexity.
+- 🛡️ **Static Analysis Integration** — Pairs AI with Semgrep to catch known vulnerabilities instantly (optional).
+- ✍️ **One-Click Fixes** — Drops GitHub inline suggestions for easy commits.
+- 📝 **Auto PR Descriptions** — Generates a title, summary, and change list from the raw diff.
 - 🧠 **Structured Security Insights** — Identifies security issues with OWASP Top 10 context and actionable remediation.
 - ⚙️ **Team-Wide Config** — A committed `.gitowl.toml` sets severity thresholds and ignored paths for the whole repo.
-- 💸 **Cost & Latency Tracking** — Every review reports token usage, estimated cost, and latency. No surprises on the bill.
-- 🔌 **Provider-Agnostic** — Works with any OpenAI-compatible provider (Ollama, OpenAI, OpenRouter, etc).
-- 📊 **Evaluation Harness** — Precision / recall / F1 measured against a seeded-bug corpus, so quality is a number, not a vibe.
+- 💸 **Cost Tracking** — Logs token usage, cost, and latency for every review.
+- 🔌 **Provider-Agnostic** — Use any API key (OpenAI, Gemini, OpenRouter, local Ollama).
 
 ---
 
@@ -90,7 +89,7 @@ sequenceDiagram
     participant GH as GitHub Actions
     participant SAST as Semgrep
     participant Engine as GitOwl Engine
-    participant AI as AI Model (OpenAI/Ollama)
+    participant AI as AI Model
 
     Dev->>GH: Opens Pull Request
     GH->>Engine: Triggers gitowl-review.yml
@@ -185,7 +184,7 @@ jobs:
 #### Step 2 — Add your API key
 
 Go to **Settings → Secrets and variables → Actions** and add a repository secret named `AI_API_KEY`.
-*(Any OpenAI-compatible provider key works — OpenRouter, OpenAI, Ollama, etc.)*
+*(Any OpenAI-compatible provider key works — OpenRouter, OpenAI, Gemini, Ollama, etc.)*
 
 #### Step 3 — Open a pull request
 
@@ -219,7 +218,7 @@ GitOwl's review engine is a plain Python library. You can wire it to a GitHub Ap
 ```python
 # webhook_server.py — minimal GitHub App receiver
 from fastapi import FastAPI, Request, HTTPException
-import hashlib, hmac, os, httpx
+import hashlib, hmac, os
 
 from gitowl.config import load_config
 from gitowl.reviewer import review_diff
@@ -327,7 +326,7 @@ Configure once in a local `.env` file (see [`.env.example`](.env.example)) or ex
 | `AI_API_KEY` | *(required)* | API key for your AI provider |
 | `AI_PROVIDER` | `openrouter` | Provider name: `openrouter` \| `openai` \| `ollama` |
 | `AI_MODEL` | `openai/gpt-4o-mini` | Model identifier passed to the provider |
-| `AI_BASE_URL` | *(provider default)* | Override the API base URL (e.g. for a local Ollama instance) |
+| `AI_BASE_URL` | *(provider default)* | Override the API base URL (e.g. for a local Ollama or Gemini endpoint) |
 | `GITHUB_TOKEN` | *(required for PR commands)* | Personal access token or `${{ secrets.GITHUB_TOKEN }}` |
 | `SEMGREP_TIMEOUT_SECONDS` | `60` | Max time allowed for a Semgrep scan |
 | `MAX_DIFF_LINES` | `2000` | Diffs larger than this are compressed before review |
@@ -356,7 +355,7 @@ model = "your-model-name"                      # pin a model for this repo
 "openai/gpt-4o-mini" = [0.15, 0.60]
 ```
 
-**Precedence** (low → high): built-in defaults → `.gitowl.toml` → environment variables.  
+**Precedence** (low → high): built-in defaults → `.gitowl.toml` → environment variables.
 The repo file sets the team baseline; a CI secret or shell `export` always wins for a single run. API keys are never read from this file.
 
 ---
@@ -499,7 +498,7 @@ chore: bump ruff to 0.9.3
 
 ## 📄 License
 
-This project is licensed under the **[MIT License](LICENSE)** — free to use, modify, and build on.
+This project is open-source and licensed under the **[MIT License](LICENSE)**.
 
 ---
 
