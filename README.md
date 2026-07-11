@@ -514,6 +514,7 @@ This project is open-source and licensed under the **[MIT License](LICENSE)**.
 
 **🌐 Connect**
 
+[![LinkedIn](https://go-skill-icons.vercel.app/api/icons?i=linkedin)](https://www.linkedin.com/in/manthandubey)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Manthan_Dubey-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/manthandubey)
 
 </div>
